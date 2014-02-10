@@ -87,7 +87,7 @@ class ModuleMaintenance extends BackendModule
 		// Truncate cache tables
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_cache')
 		{
-			$tables = deserialize($this->Input->post('tables'));
+			$tables = $this->Input->post('tables');
 
 			if (!is_array($tables))
 			{
