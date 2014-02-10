@@ -98,7 +98,7 @@ class SelectMenu extends \Widget
 	 */
 	public function validate()
 	{
-		$varValue = deserialize($this->getPost($this->strName));
+		$varValue = $this->getPost($this->strName);
 
 		if ($varValue != '' && !$this->isValidOption($varValue))
 		{
