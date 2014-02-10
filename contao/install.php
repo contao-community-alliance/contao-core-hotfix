@@ -697,7 +697,7 @@ class InstallTool extends Controller
 		 */
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_tables')
 		{
-			$sql = deserialize($this->Input->post('sql'));
+			$sql = $this->Input->post('sql');
 
 			if (is_array($sql))
 			{
