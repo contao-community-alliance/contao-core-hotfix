@@ -403,7 +403,7 @@ abstract class Widget extends Controller
 	 */
 	public function validate()
 	{
-		$varInput = $this->validator(deserialize($this->getPost($this->strName)));
+		$varInput = $this->validator($this->getPost($this->strName));
 
 		if (!$this->hasErrors())
 		{
