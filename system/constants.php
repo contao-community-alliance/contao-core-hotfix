@@ -57,7 +57,7 @@ define('SWITCH_ORDER', true);
  * the web browser reload those resources after a Contao update.
  */
 define('VERSION', '2.10');
-define('BUILD', '4');
+define('BUILD', '4-cca-soa-hotfix2');
 define('DATEPICKER', '1.17');
 define('CODEMIRROR', '2.1');
 define('FANCYUPLOAD', '3.0');
@@ -122,5 +122,3 @@ define('TL_FORMS', 'FORMS');
 define('TL_CONFIGURATION', 'CONFIGURATION');
 define('TL_NEWSLETTER', 'NEWSLETTER');
 define('TL_REPOSITORY', 'REPOSITORY');
-
-?>
