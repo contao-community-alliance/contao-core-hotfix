@@ -279,22 +279,35 @@ function strip_insert_tags($strString)
  */
 function deserialize($varValue, $blnForceArray=false)
 {
+	// Already an array
 	if (is_array($varValue))
 	{
 		return $varValue;
 	}
 
+	// Null
 	if ($varValue === null)
 	{
 		return $blnForceArray ? array() : null;
 	}
-	elseif (!is_string($varValue))
+
+	// Not a string
+	if (!is_string($varValue))
 	{
 		return $blnForceArray ? array($varValue) : $varValue;
 	}
-	elseif (trim($varValue) == '')
+
+	// Empty string
+	if (trim($varValue) == '')
 	{
 		return $blnForceArray ? array() : '';
+	}
+
+	// Potentially including an object (see #6724)
+	if (preg_match('/[OoC]:\+?[0-9]+:"/', $varValue))
+	{
+		trigger_error('The deserialize() function does not allow serialized objects', E_USER_WARNING);
+		return $blnForceArray ? array($varValue) : $varValue;
 	}
 
 	$varUnserialized = @unserialize($varValue);
