@@ -432,6 +432,12 @@ class Input
 		$varValue = strip_tags($varValue, $strAllowedTags);
 		$varValue = str_replace(array('&lt;!--', '&lt;![', '--&gt;'), array('<!--', '<![', '-->'), $varValue);
 
+		// Recheck for encoded null bytes
+		while (strpos($varValue, '\\0') !== false)
+		{
+			$varValue = str_replace('\\0', '', $varValue);
+		}
+
 		return $varValue;
 	}
 
@@ -462,8 +468,8 @@ class Input
 			return $varValue;
 		}
 
-		// Return if var is not a string
-		if (is_bool($varValue) || $varValue === null || is_numeric($varValue))
+		// Return if the value is not a string
+		if (is_bool($varValue) || is_null($varValue) || is_numeric($varValue))
 		{
 			return $varValue;
 		}
@@ -478,10 +484,16 @@ class Input
       	// Replace unicode entities
 		$varValue = utf8_decode_entities($varValue);
 
-		// Remove NULL characters
-		$varValue = preg_replace('/\0+/', '', $varValue);
-		$varValue = preg_replace('/(\\\\0)+/', '', $varValue);
+		// Remove NULL bytes
+		$varValue = str_replace(chr(0), '', $varValue);
 
+		// Remove encoded null bytes
+		while (strpos($varValue, '\\0') !== false)
+		{
+			$varValue = str_replace('\\0', '', $varValue);
+		}
+
+		// Define a list of keywords
 		$arrKeywords = array
 		(
 			'/\bj\s*a\s*v\s*a\s*s\s*c\s*r\s*i\s*p\s*t\b/is', // javascript
@@ -544,7 +556,15 @@ class Input
 			$arrRegexp[] = '/<[^>]*[^a-z]onresize\s*=[^>]*>/is';
 		}
 
-		return preg_replace($arrRegexp, '', $varValue);
+		$varValue = preg_replace($arrRegexp, '', $varValue);
+
+		// Recheck for encoded null bytes
+		while (strpos($varValue, '\\0') !== false)
+		{
+			$varValue = str_replace('\\0', '', $varValue);
+		}
+
+		return $varValue;
 	}
 
 
