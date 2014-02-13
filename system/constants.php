@@ -45,7 +45,7 @@ define('URL_SUFFIX', '.html');
 define('ENCODE_AMPERSANDS', true);
 define('SWITCH_ORDER', true);
 define('VERSION', '2.6');
-define('BUILD', '8');
+define('BUILD', '8-cca-soa-hotfix2');
 
 
 /**
@@ -97,5 +97,3 @@ define('TL_FILES', 'FILES');
 define('TL_CRON', 'CRON');
 define('TL_FORMS', 'FORMS');
 define('TL_CONFIGURATION', 'CONFIGURATION');
-
-?>
