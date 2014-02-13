@@ -15,7 +15,7 @@
  * Core version
  */
 define('VERSION', '3.2');
-define('BUILD', '4');
+define('BUILD', '4-cca-soa-hotfix2');
 define('LONG_TERM_SUPPORT', true);
 
 
