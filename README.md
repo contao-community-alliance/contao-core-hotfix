@@ -27,13 +27,13 @@ Contao 3.X
 Contao 2.X
 ----------
 
-* 2.11.13.soa.soa-hardening [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.11.13) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.11.13-patchset)
-* 2.10.4.soa.soa-hardening [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.10.4) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.10.4-patchset)
-* 2.9.5.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.9.5) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.9.5-patchset)
+* 2.11.13-cca.soa.soa-hardening [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.11.13) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.11.13-patchset)
+* 2.10.4-cca.soa.soa-hardening [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.10.4) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.10.4-patchset)
+* 2.9.5-cca.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.9.5) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.9.5-patchset)
 
 TYPOlight 2.X
 -------------
 
-* 2.8.4.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.8.4) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.8.4-patchset)
-* 2.7.7.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.7.7) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.7.7-patchset)
-* 2.6.8.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.6.8) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.6.8-patchset)
+* 2.8.4-cca.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.8.4) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.8.4-patchset)
+* 2.7.7-cca.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.7.7) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.7.7-patchset)
+* 2.6.8-cca.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.6.8) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.6.8-patchset)
