@@ -181,8 +181,8 @@ class BackendUser extends User
 			$strRedirect .= '?referer=' . base64_encode($this->Environment->request);
 		}
 
-		// Force JavaScript redirect on Ajax requests (IE requires absolute link)
-		if ($this->Input->post('isAjax'))
+		// Force JavaScript redirect on Ajax requests (IE requires an absolute link)
+		if ($this->Environment->isAjaxRequest)
 		{
 			header('Content-Type: text/javascript');
 			echo 'location.replace("' . $this->Environment->base . $strRedirect . '")';
@@ -479,5 +479,3 @@ class BackendUser extends User
 		return $arrModules;
 	}
 }
-
-?>
