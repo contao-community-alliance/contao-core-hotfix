@@ -1,13 +1,13 @@
 <?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
- * TYPOlight Open Source CMS
- * Copyright (C) 2005-2010 Leo Feyer
+ * TYPOlight webCMS
+ * Copyright (C) 2005-2009 Leo Feyer
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation, either
- * version 3 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,11 +16,11 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program. If not, please visit the Free
- * Software Foundation website at <http://www.gnu.org/licenses/>.
+ * Software Foundation website at http://www.gnu.org/licenses/.
  *
  * PHP version 5
- * @copyright  Leo Feyer 2005-2010
- * @author     Leo Feyer <http://www.typolight.org>
+ * @copyright  Leo Feyer 2005-2009
+ * @author     Leo Feyer <leo@typolight.org>
  * @package    System
  * @license    LGPL
  * @filesource
@@ -31,8 +31,8 @@
  * Class Input
  *
  * Provide methods to clean up user input and to prevent XSS.
- * @copyright  Leo Feyer 2005-2010
- * @author     Leo Feyer <http://www.typolight.org>
+ * @copyright  Leo Feyer 2005-2009
+ * @author     Leo Feyer <leo@typolight.org>
  * @package    Library
  */
 class Input
@@ -52,9 +52,14 @@ class Input
 
 
 	/**
-	 * Prevent direct instantiation (Singleton)
+	 * Clean the keys of the request arrays
 	 */
-	protected function __construct() {}
+	protected function __construct()
+	{
+		$_GET    = $this->cleanKey($_GET);
+		$_POST   = $this->cleanKey($_POST);
+		$_COOKIE = $this->cleanKey($_COOKIE);
+	}
 
 
 	/**
@@ -90,10 +95,7 @@ class Input
 
 		if (!isset($this->arrCache[$strCacheKey][$strKey]))
 		{
-			$varValue = $_GET[$strKey];
-
-			$varValue = $this->stripSlashes($varValue);
-			$varValue = $this->decodeEntities($varValue);
+			$varValue = $this->decodeEntities($_GET[$strKey]);
 			$varValue = $this->xssClean($varValue, true);
 			$varValue = $this->stripTags($varValue);
 
@@ -122,8 +124,6 @@ class Input
 		if (!isset($this->arrCache[$strCacheKey][$strKey]))
 		{
 			$varValue = $this->findPost($strKey);
-
-			$varValue = $this->stripSlashes($varValue);
 			$varValue = $this->decodeEntities($varValue);
 			$varValue = $this->xssClean($varValue, true);
 			$varValue = $this->stripTags($varValue);
@@ -153,8 +153,6 @@ class Input
 		if (!isset($this->arrCache[$strCacheKey][$strKey]))
 		{
 			$varValue = $this->findPost($strKey);
-
-			$varValue = $this->stripSlashes($varValue);
 			$varValue = $this->decodeEntities($varValue);
 			$varValue = $this->xssClean($varValue);
 			$varValue = $this->stripTags($varValue, $GLOBALS['TL_CONFIG']['allowedTags']);
@@ -183,8 +181,7 @@ class Input
 		if (!isset($this->arrCache[$strCacheKey][$strKey]))
 		{
 			$varValue = $this->findPost($strKey);
-
-			$varValue = $this->stripSlashes($varValue);
+			$varValue = get_magic_quotes_gpc() ? stripslashes($varValue) : $varValue;
 			$varValue = $this->xssClean($varValue);
 
 			$this->arrCache[$strCacheKey][$strKey] = $varValue;
@@ -206,10 +203,7 @@ class Input
 
 		if (!isset($this->arrCache[$strCacheKey][$strKey]))
 		{
-			$varValue = $_COOKIE[$strKey];
-
-			$varValue = $this->stripSlashes($varValue);
-			$varValue = $this->decodeEntities($varValue);
+			$varValue = $this->decodeEntities($_COOKIE[$strKey]);
 			$varValue = $this->xssClean($varValue, true);
 			$varValue = $this->stripTags($varValue);
 
@@ -232,6 +226,8 @@ class Input
 	 */
 	public function setGet($strKey, $varValue)
 	{
+		$strKey = $this->cleanKey($strKey);
+
 		unset($this->arrCache['getEncoded'][$strKey]);
 		unset($this->arrCache['getDecoded'][$strKey]);
 
@@ -246,6 +242,8 @@ class Input
 	 */
 	public function setPost($strKey, $varValue)
 	{
+		$strKey = $this->cleanKey($strKey);
+
 		unset($this->arrCache['postEncoded'][$strKey]);
 		unset($this->arrCache['postDecoded'][$strKey]);
 		unset($this->arrCache['postRaw'][$strKey]);
@@ -261,10 +259,19 @@ class Input
 	 */
 	public function setCookie($strKey, $varValue)
 	{
+		$strKey = $this->cleanKey($strKey);
+
 		unset($this->arrCache['cookieEncoded'][$strKey]);
 		unset($this->arrCache['cookieDecoded'][$strKey]);
 
-		$_COOKIE[$strKey] = $varValue;
+		if (is_null($varValue))
+		{
+			unset($_COOKIE[$strKey]);
+		}
+		else
+		{
+			$_COOKIE[$strKey] = $varValue;
+		}
 	}
 
 
@@ -278,12 +285,53 @@ class Input
 
 
 	/**
+	 * Sanitize a key name or an array (thanks to Andreas Schempp)
+	 * @param mixed
+	 * @return mixed
+	 */
+	protected function cleanKey($varValue)
+	{
+		// Recursively clean arrays
+		if (is_array($varValue))
+		{
+			$return = array();
+
+			foreach ($varValue as $k=>$v)
+			{
+				$k = $this->cleanKey($k);
+
+				if (is_array($v))
+				{
+					$v = $this->cleanKey($v);
+				}
+
+				$return[$k] = $v;
+			}
+
+			return $return;
+		}
+
+		$varValue = $this->stripSlashes($varValue);
+		$varValue = $this->decodeEntities($varValue);
+		$varValue = $this->xssClean($varValue, true);
+		$varValue = $this->stripTags($varValue);
+
+		return $varValue;
+	}
+
+
+	/**
 	 * Strip slashes
 	 * @param  mixed
 	 * @return mixed
 	 */
 	protected function stripSlashes($varValue)
 	{
+		if (is_null($varValue) || $varValue == '')
+		{
+			return $varValue;
+		}
+
 		// Recursively clean arrays
 		if (is_array($varValue))
 		{
@@ -295,15 +343,20 @@ class Input
 			return $varValue;
 		}
 
-		return get_magic_quotes_gpc() ? stripslashes($varValue) : $varValue;
+		if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc())
+		{
+			$varValue = stripslashes($varValue);
+		}
+
+		return $varValue;
 	}
 
 
 	/**
 	 * Strip tags preserving HTML comments
-	 * @param  mixed
 	 * @param  string
-	 * @return mixed
+	 * @param  boolean
+	 * @return string
 	 */
 	protected function stripTags($varValue, $strAllowedTags='')
 	{
@@ -452,8 +505,9 @@ class Input
 
 	/**
 	 * Decode HTML entities
-	 * @param  mixed
-	 * @return mixed
+	 * @param  string
+	 * @param  boolean
+	 * @return string
 	 */
 	protected function decodeEntities($varValue)
 	{
@@ -468,11 +522,13 @@ class Input
 			return $varValue;
 		}
 
+		$varValue = get_magic_quotes_gpc() ? stripslashes($varValue) : $varValue;
+
 		// Preserve basic entities
 		$varValue = str_replace
 		(
-			array('[&amp;]', '&amp;', '[&lt;]', '&lt;', '[&gt;]', '&gt;', '[&nbsp;]', '&nbsp;', '[&shy;]', '&shy;'),
-			array('[&]', '[&]', '[lt]', '[lt]', '[gt]', '[gt]', '[nbsp]', '[nbsp]', '[-]', '[-]'),
+			array('[&amp;]', '&amp;', '[&lt;]', '&lt;', '[&gt;]', '&gt;', '[&nbsp;]', '&nbsp;'),
+			array('[&]', '[&]', '[lt]', '[lt]', '[gt]', '[gt]', '[nbsp]', '[nbsp]'),
 			$varValue
 		);
 
@@ -482,8 +538,9 @@ class Input
 
 	/**
 	 * Encode special characters
-	 * @param  mixed
-	 * @return mixed
+	 * @param  string
+	 * @param  boolean
+	 * @return string
 	 */
 	protected function encodeSpecialChars($varValue)
 	{
