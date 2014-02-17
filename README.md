@@ -4,7 +4,10 @@ Hotfixes for Contao Core
 Serialized object attack [soa] [#6695](https://github.com/contao/core/issues/6695)
 ----------------------------------------------------------------------------
 
-**Update**: we have updated the hotfix on 2014-02-13, after patching your contao version will change to `x.x.x-cca-soa-hotfix2`!
+### Updates
+
+* 2014-02-13 - we have updated the hotfix according to the 3.2.7/2.11.16 fixes.
+* 2014-02-17 - we have backported the fix for the potential XSS vulnerability from 2.10.2 into all lower versions.
 
 ### Contao 3.X
 
