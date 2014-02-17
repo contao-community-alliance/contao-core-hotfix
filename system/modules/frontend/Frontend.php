@@ -1,13 +1,13 @@
 <?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
- * TYPOlight webCMS
- * Copyright (C) 2005-2009 Leo Feyer
+ * TYPOlight Open Source CMS
+ * Copyright (C) 2005-2010 Leo Feyer
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation, either
- * version 2.1 of the License, or (at your option) any later version.
+ * version 3 of the License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,11 +16,11 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program. If not, please visit the Free
- * Software Foundation website at http://www.gnu.org/licenses/.
+ * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Leo Feyer 2005-2009
- * @author     Leo Feyer <leo@typolight.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Frontend
  * @license    LGPL
  * @filesource
@@ -31,8 +31,8 @@
  * Class Frontend
  *
  * Provide methods to manage front end controllers.
- * @copyright  Leo Feyer 2005-2009
- * @author     Leo Feyer <leo@typolight.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Controller
  */
 abstract class Frontend extends Controller
@@ -75,7 +75,7 @@ abstract class Frontend extends Controller
 	{
 		if ($GLOBALS['TL_CONFIG']['disableAlias'])
 		{
-			return strlen($this->Input->get('id')) ? $this->Input->get('id') : null;
+			return is_numeric($this->Input->get('id')) ? $this->Input->get('id') : null;
 		}
 
 		if ($this->Environment->request == '')
@@ -126,32 +126,32 @@ abstract class Frontend extends Controller
 		$time = time();
 
 		// Current host and current user language match a record
-		$objRootPage = $this->Database->prepare("SELECT id FROM tl_page WHERE type=? AND (dns=? OR dns=?) AND language=?" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<?) AND (stop='' OR stop>?) AND published=1" : ""))
+		$objRootPage = $this->Database->prepare("SELECT id FROM tl_page WHERE type='root' AND (dns=? OR dns=?) AND language=?" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<$time) AND (stop='' OR stop>$time) AND published=1" : ""))
 									  ->limit(1)
-									  ->execute('root', $host, 'www.'.$host, $accept_language[0], $time, $time);
+									  ->execute($host, 'www.'.$host, $accept_language[0]);
 
 		if ($objRootPage->numRows < 1)
 		{
 			// Current host matches a record (look for fallback language)
-			$objRootPage = $this->Database->prepare("SELECT id FROM tl_page WHERE type=? AND (dns=? OR dns=?) AND fallback=1" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<?) AND (stop='' OR stop>?) AND published=1" : ""))
+			$objRootPage = $this->Database->prepare("SELECT id FROM tl_page WHERE type='root' AND (dns=? OR dns=?) AND fallback=1" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<$time) AND (stop='' OR stop>$time) AND published=1" : ""))
 										  ->limit(1)
-										  ->execute('root', $host, 'www.'.$host, $time, $time);
+										  ->execute($host, 'www.'.$host);
 		}
 
 		if ($objRootPage->numRows < 1)
 		{
 			// Current user language matches a record (and DNS is empty)
-			$objRootPage = $this->Database->prepare("SELECT id FROM tl_page WHERE type=? AND dns='' AND language=?" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<?) AND (stop='' OR stop>?) AND published=1" : ""))
+			$objRootPage = $this->Database->prepare("SELECT id FROM tl_page WHERE type='root' AND dns='' AND language=?" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<$time) AND (stop='' OR stop>$time) AND published=1" : ""))
 										  ->limit(1)
-										  ->execute('root', $accept_language[0], $time, $time);
+										  ->execute($accept_language[0]);
 		}
 
 		if ($objRootPage->numRows < 1)
 		{
 			// Current fallback language matches a record (and DNS is empty)
-			$objRootPage = $this->Database->prepare("SELECT id FROM tl_page WHERE type=? AND dns='' AND fallback=1" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<?) AND (stop='' OR stop>?) AND published=1" : ""))
+			$objRootPage = $this->Database->prepare("SELECT id FROM tl_page WHERE type='root' AND dns='' AND fallback=1" . (!BE_USER_LOGGED_IN ? " AND (start='' OR start<$time) AND (stop='' OR stop>$time) AND published=1" : ""))
 										  ->limit(1)
-										  ->execute('root', $time, $time);
+										  ->execute();
 		}
 
 		return $objRootPage->numRows ? $objRootPage->id : 0;
@@ -161,17 +161,26 @@ abstract class Frontend extends Controller
 	/**
 	 * Overwrite the parent method as front end URLs are handled differently
 	 * @param string
+	 * @param boolean
 	 * @return string
 	 */
-	protected function addToUrl($strRequest)
+	protected function addToUrl($strRequest, $blnIgnoreParams=false)
 	{
-		$arrGet = $_GET;
+		$arrGet = $blnIgnoreParams ? array() : $_GET;
 		$arrFragments = preg_split('/&(amp;)?/i', $strRequest);
 
 		foreach ($arrFragments as $strFragment)
 		{
-			$arrParams = explode('=', $strFragment);
-			$arrGet[$arrParams[0]] = $arrParams[1];
+			list($key, $value) = explode('=', $strFragment);
+
+			if ($value == '')
+			{
+				unset($arrGet[$key]);
+			}
+			else
+			{
+				$arrGet[$key] = $value;
+			}
 		}
 
 		$strParams = '';
@@ -350,15 +359,11 @@ abstract class Frontend extends Controller
 
 		$strBuffer = file_get_contents(TL_ROOT . '/' . $strFile);
 		$strBuffer = utf8_convert_encoding($strBuffer, $GLOBALS['TL_CONFIG']['characterSet']);
-		$arrBuffer = trimsplit('[\n\r]+', $strBuffer);
+		$arrBuffer = array_filter(trimsplit('[\n\r]+', $strBuffer));
 
 		foreach ($arrBuffer as $v)
 		{
-			$pos = strpos($v, '=');
-
-			$strLabel = trim(utf8_substr($v, 0, $pos));
-			$strValue = utf8_substr($v, ($pos + 1));
-
+			list($strLabel, $strValue) = array_map('trim', explode('=', $v, 2));
 			$this->arrMeta[$strLabel] = array_map('trim', explode('|', $strValue));
 
 			if (!$blnIsFile || in_array($strPath . '/' . $strLabel, $this->multiSRC))
@@ -368,5 +373,23 @@ abstract class Frontend extends Controller
 		}
 
 		$this->arrProcessed[] = $strPath;
+	}
+
+
+	/**
+	 * Prepare a text to be used in the meta description tag
+	 * @param string
+	 * @return boolean
+	 */
+	protected function prepareMetaDescription($strText)
+	{
+		$this->import('String');
+
+		$strText = $this->replaceInsertTags($strText);
+		$strText = strip_tags($strText);
+		$strText = str_replace("\n", ' ', $strText);
+		$strText = $this->String->substr($strText, 180, true);
+
+		return trim($strText);
 	}
 }

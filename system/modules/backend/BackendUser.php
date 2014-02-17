@@ -1,13 +1,13 @@
 <?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
- * TYPOlight webCMS
- * Copyright (C) 2005-2009 Leo Feyer
+ * TYPOlight Open Source CMS
+ * Copyright (C) 2005-2010 Leo Feyer
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation, either
- * version 2.1 of the License, or (at your option) any later version.
+ * version 3 of the License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,11 +16,11 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program. If not, please visit the Free
- * Software Foundation website at http://www.gnu.org/licenses/.
+ * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Leo Feyer 2005-2009
- * @author     Leo Feyer <leo@typolight.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Backend
  * @license    LGPL
  * @filesource
@@ -31,8 +31,8 @@
  * Class BackendUser
  *
  * Provide methods to manage back end users.
- * @copyright  Leo Feyer 2005-2009
- * @author     Leo Feyer <leo@typolight.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Model
  */
 class BackendUser extends User
@@ -135,7 +135,7 @@ class BackendUser extends User
 				break;
 
 			case 'alexf':
-				return $this->arrData['alexf'];
+				return $this->alexf;
 				break;
 
 			default:
@@ -182,7 +182,9 @@ class BackendUser extends User
 		// Force JavaScript redirect on Ajax requests (IE requires an absolute link)
 		if ($this->Environment->isAjaxRequest)
 		{
-			echo '<script type="text/javascript">location.replace("' . $strRedirect . '")</script>';
+			header('Content-Type: text/javascript');
+			echo 'location.replace("' . $this->Environment->base . $strRedirect . '")';
+
 			exit;
 		}
 
@@ -203,7 +205,12 @@ class BackendUser extends User
 			return true;
 		}
 
-		if (is_array($this->$array) && array_intersect((array) $field, $this->$array))
+		if (!is_array($field))
+		{
+			$field = array($field);
+		}
+
+		if (is_array($this->$array) && array_intersect($field, $this->$array))
 		{
 			return true;
 		}
@@ -213,11 +220,14 @@ class BackendUser extends User
 		{
 			foreach ($this->filemounts as $folder)
 			{
-				$return = preg_match('/^'.str_replace('/', '\/', $folder).'/i', $field[0]);
+				if (preg_match('/^'. preg_quote($folder, '/') .'/i', $field[0]))
+				{
+					return true;
+				}
 			}
 		}
 
-		return $return;
+		return false;
 	}
 
 
@@ -316,7 +326,7 @@ class BackendUser extends User
 
 		// Inherit permissions
 		$always = array('alexf');
-		$depends = array('modules', 'pagemounts', 'alpty', 'filemounts', 'fop', 'forms');
+		$depends = array('modules', 'pagemounts', 'alpty', 'filemounts', 'fop', 'forms', 'formp');
 
 		// HOOK: Take custom permissions
 		if (is_array($GLOBALS['TL_PERMISSIONS']) && count($GLOBALS['TL_PERMISSIONS'] > 0))
@@ -328,18 +338,21 @@ class BackendUser extends User
 		if (in_array('news', $this->Config->getActiveModules()))
 		{
 			$depends[] = 'news';
+			$depends[] = 'newp';
 		}
 
 		// HOOK: add calendar permissions
 		if (in_array('calendar', $this->Config->getActiveModules()))
 		{
 			$depends[] = 'calendars';
+			$depends[] = 'calendarp';
 		}
 
 		// HOOK: add newsletters permissions
 		if (in_array('newsletter', $this->Config->getActiveModules()))
 		{
 			$depends[] = 'newsletters';
+			$depends[] = 'newsletterp';
 		}
 
 		// Overwrite user permissions if only group permissions shall be inherited
@@ -357,9 +370,9 @@ class BackendUser extends User
 
 		foreach ((array) $this->groups as $id)
 		{
-			$objGroup = $this->Database->prepare("SELECT * FROM tl_user_group WHERE id=? AND disable!=1 AND (start='' OR start<?) AND (stop='' OR stop>?)")
+			$objGroup = $this->Database->prepare("SELECT * FROM tl_user_group WHERE id=? AND disable!=1 AND (start='' OR start<$time) AND (stop='' OR stop>$time)")
 									   ->limit(1)
-									   ->execute($id, $time, $time);
+									   ->execute($id);
 
 			if ($objGroup->numRows > 0)
 			{
@@ -376,16 +389,25 @@ class BackendUser extends User
 			}
 		}
 
+		// Restore session
 		if (is_array($this->session))
 		{
 			$this->Session->setData($this->session);
-			return;
+		}
+		else
+		{
+			$this->session = array();
 		}
 
-		$this->Database->prepare("UPDATE " . $this->strTable . " SET session='' WHERE id=?")
-					   ->execute($this->intId);
-
-		$this->session = array();
+		// Make sure pagemounts and filemounts are set!
+		if (!is_array($this->pagemounts))
+		{
+			$this->pagemounts = array();
+		}
+		if (!is_array($this->filemounts))
+		{
+			$this->filemounts = array();
+		}
 	}
 
 
