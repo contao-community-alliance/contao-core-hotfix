@@ -18,7 +18,7 @@
  * the web browser reload those resources after a Contao update.
  */
 define('VERSION', '3.0');
-define('BUILD', '6-cca-soa-hotfix2');
+define('BUILD', '6-cca.soa.soa-hardening');
 define('LONG_TERM_SUPPORT', false);
 define('CODEMIRROR', '2.32');
 define('CSS3PIE', '1.0.0');
