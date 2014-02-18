@@ -7,6 +7,7 @@ Backports / Fixes
 * `soa` 2014-02-10 - backport hotfix for the Serialized object attack, see [#6695](https://github.com/contao/core/issues/6695)
 * `soa-hardening` 2014-02-13 - backport hardenings related to Serialized object attack from 3.2.7/2.11.16
 * `xss` 2014-02-17 - backport potential XSS vulnerability from 2.10.2 into all lower versions
+* `moo` 2014-02-18 - upgrade Mootools Core and Mootools More to 1.3.2
 
 Naming convention
 -----------------
@@ -29,11 +30,11 @@ Contao 2.X
 
 * 2.11.13-cca.soa.soa-hardening [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.11.13) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.11.13-patchset)
 * 2.10.4-cca.soa.soa-hardening [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.10.4) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.10.4-patchset)
-* 2.9.5-cca.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.9.5) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.9.5-patchset)
+* 2.9.5-cca.soa.soa-hardening.xss.moo [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.9.5) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.9.5-patchset)
 
 TYPOlight 2.X
 -------------
 
-* 2.8.4-cca.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.8.4) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.8.4-patchset)
-* 2.7.7-cca.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.7.7) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.7.7-patchset)
-* 2.6.8-cca.soa.soa-hardening.xss [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.6.8) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.6.8-patchset)
+* 2.8.4-cca.soa.soa-hardening.xss.moo [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.8.4) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.8.4-patchset)
+* 2.7.7-cca.soa.soa-hardening.xss.moo [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.7.7) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.7.7-patchset)
+* 2.6.8-cca.soa.soa-hardening.xss.moo [complete source](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.6.8) - [patchset](https://github.com/contao-community-alliance/contao-core-hotfix/tree/soa-2.6.8-patchset)
