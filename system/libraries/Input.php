@@ -364,37 +364,6 @@ class Input
 
 
 	/**
-	 * Reset the internal cache
-	 */
-	public function resetCache()
-	{
-		$this->arrCache = array();
-	}
-
-
-	/**
-	 * Strip slashes
-	 * @param  mixed
-	 * @return mixed
-	 */
-	protected function stripSlashes($varValue)
-	{
-		// Recursively clean arrays
-		if (is_array($varValue))
-		{
-			foreach ($varValue as $k=>$v)
-			{
-				$varValue[$k] = $this->stripSlashes($v);
-			}
-
-			return $varValue;
-		}
-
-		return get_magic_quotes_gpc() ? stripslashes($varValue) : $varValue;
-	}
-
-
-	/**
 	 * Strip tags preserving HTML comments
 	 * @param  mixed
 	 * @param  string
