@@ -1,10 +1,8 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
- * Contao Open Source CMS
- * Copyright (C) 2005-2011 Leo Feyer
- *
- * Formerly known as TYPOlight Open Source CMS.
+ * TYPOlight Open Source CMS
+ * Copyright (C) 2005-2010 Leo Feyer
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,8 +19,8 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Leo Feyer 2005-2011
- * @author     Leo Feyer <http://www.contao.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    System
  * @license    LGPL
  * @filesource
@@ -33,8 +31,8 @@
  * Class DC_Folder
  *
  * Provide methods to modify the file system.
- * @copyright  Leo Feyer 2005-2011
- * @author     Leo Feyer <http://www.contao.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Controller
  */
 class DC_Folder extends DataContainer implements listable, editable
@@ -94,7 +92,7 @@ class DC_Folder extends DataContainer implements listable, editable
 		if ($this->Input->get('act') == 'paste' && $this->Input->get('mode') == 'create' && isset($GLOBALS['TL_DCA'][$strTable]['list']['new']))
 		{
 			$this->log('Attempt to create new folder although the method has been overwritten in the data container', 'DC_Folder __construct()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Set IDs and redirect
@@ -172,10 +170,6 @@ class DC_Folder extends DataContainer implements listable, editable
 	{
 		switch ($strKey)
 		{
-			case 'path':
-				return $this->strPath;
-				break;
-
 			case 'extension':
 				return $this->strExtension;
 				break;
@@ -257,10 +251,7 @@ class DC_Folder extends DataContainer implements listable, editable
 		{
 			for ($i=0; $i<count($this->arrFilemounts); $i++)
 			{
-				if (is_dir(TL_ROOT . '/' . $this->arrFilemounts[$i]))
-				{
-					$return .= $this->generateTree(TL_ROOT . '/' . $this->arrFilemounts[$i], 0, true, false, ($blnClipboard ? $arrClipboard : false));
-				}
+				$return .= $this->generateTree(TL_ROOT . '/' . $this->arrFilemounts[$i], 0, true, false, ($blnClipboard ? $arrClipboard : false));
 			}
 		}
 
@@ -283,15 +274,16 @@ class DC_Folder extends DataContainer implements listable, editable
 		// Build tree
 		$return = '
 <div id="tl_buttons">'.(($this->Input->get('act') == 'select') ? '
-<a href="'.$this->getReferer(true).'" class="header_back" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['backBT']).'" accesskey="b" onclick="Backend.getScrollOffset();">'.$GLOBALS['TL_LANG']['MSC']['backBT'].'</a>' : '') . (($this->Input->get('act') != 'select') ? '
-<a href="'.$this->addToUrl($hrfNew).'" class="'.$clsNew.'" title="'.specialchars($ttlNew).'" accesskey="n" onclick="Backend.getScrollOffset();">'.$lblNew.'</a>' . (!$GLOBALS['TL_DCA'][$this->strTable]['config']['closed'] ? ' &nbsp; :: &nbsp; <a href="'.$this->addToUrl('&amp;act=paste&amp;mode=move').'" class="header_new" title="'.specialchars($GLOBALS['TL_LANG'][$this->strTable]['move'][1]).'" onclick="Backend.getScrollOffset();">'.$GLOBALS['TL_LANG'][$this->strTable]['move'][0].'</a>' : '') . $this->generateGlobalButtons(true) . ($blnClipboard ? ' &nbsp; :: &nbsp; <a href="'.$this->addToUrl('clipboard=1').'" class="header_clipboard" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']).'" accesskey="b">'.$GLOBALS['TL_LANG']['MSC']['clearClipboard'].'</a>' : '') : '') . '
+<a href="'.$this->getReferer(true).'" class="header_back" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['backBT']).'" accesskey="b" onclick="Backend.getScrollOffset();">'.$GLOBALS['TL_LANG']['MSC']['backBT'].'</a>' : '') . (($this->Input->get('act') != 'select' && !$GLOBALS['TL_DCA'][$this->strTable]['config']['closed']) ? '
+<a href="'.$this->addToUrl('&amp;act=paste&amp;mode=move').'" class="header_new" title="'.specialchars($GLOBALS['TL_LANG'][$this->strTable]['move'][1]).'" onclick="Backend.getScrollOffset();">'.$GLOBALS['TL_LANG'][$this->strTable]['move'][0].'</a> &#160; :: &#160; ' : '') . (($this->Input->get('act') != 'select') ? '
+<a href="'.$this->addToUrl($hrfNew).'" class="'.$clsNew.'" title="'.specialchars($ttlNew).'" accesskey="n" onclick="Backend.getScrollOffset();">'.$lblNew.'</a>' . $this->generateGlobalButtons(true) . ($blnClipboard ? ' &nbsp; :: &nbsp; <a href="'.$this->addToUrl('clipboard=1').'" class="header_clipboard" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']).'" accesskey="b">'.$GLOBALS['TL_LANG']['MSC']['clearClipboard'].'</a>' : '') : '') . '
 </div>' . (($this->Input->get('act') == 'select') ? '
 
 <form action="'.ampersand($this->Environment->request, true).'" id="tl_select" class="tl_form" method="post">
 <div class="tl_formbody">
 <input type="hidden" name="FORM_SUBMIT" value="tl_select" />' : '').'
 
-<div class="tl_listing_container tree_view" id="tl_listing">'.(isset($GLOBALS['TL_DCA'][$this->strTable]['list']['sorting']['breadcrumb']) ? $GLOBALS['TL_DCA'][$this->strTable]['list']['sorting']['breadcrumb'] : '').(($this->Input->get('act') == 'select') ? '
+<div class="tl_listing_container" id="tl_listing">'.(isset($GLOBALS['TL_DCA'][$this->strTable]['list']['sorting']['breadcrumb']) ? $GLOBALS['TL_DCA'][$this->strTable]['list']['sorting']['breadcrumb'] : '').(($this->Input->get('act') == 'select') ? '
 
 <div class="tl_select_trigger">
 <label for="tl_select_trigger" class="tl_select_label">'.$GLOBALS['TL_LANG']['MSC']['selectAll'].'</label> <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox" />
@@ -348,7 +340,7 @@ class DC_Folder extends DataContainer implements listable, editable
 		if ($strFolder == '' || !file_exists(TL_ROOT . '/' . $strFolder) || !$this->isMounted($strFolder))
 		{
 			$this->log('Folder "'.$strFolder.'" was not mounted or is not a directory', 'DC_Folder create()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Empty clipboard
@@ -373,20 +365,20 @@ class DC_Folder extends DataContainer implements listable, editable
 		if (!file_exists(TL_ROOT . '/' . $this->intId) || !$this->isMounted($this->intId))
 		{
 			$this->log('File or folder "'.$this->intId.'" was not mounted or could not be found', 'DC_Folder cut()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		if (!file_exists(TL_ROOT . '/' . $strFolder) || !$this->isMounted($strFolder))
 		{
 			$this->log('Parent folder "'.$strFolder.'" was not mounted or is not a directory', 'DC_Folder cut()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Avoid a circular reference
 		if (preg_match('/^' . preg_quote($this->intId, '/') . '/i', $strFolder))
 		{
 			$this->log('Attempt to move folder "'.$this->intId.'" to "'.$strFolder.'" (circular reference)', 'DC_Folder cut()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Empty clipboard
@@ -459,20 +451,20 @@ class DC_Folder extends DataContainer implements listable, editable
 		if (!file_exists(TL_ROOT . '/' . $source) || !$this->isMounted($source))
 		{
 			$this->log('File or folder "'.$source.'" was not mounted or could not be found', 'DC_Folder copy()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		if (!file_exists(TL_ROOT . '/' . $strFolder) || !$this->isMounted($strFolder))
 		{
 			$this->log('Parent folder "'.$strFolder.'" was not mounted or is not a directory', 'DC_Folder copy()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Avoid a circular reference
 		if (preg_match('/^' . preg_quote($source, '/') . '/i', $strFolder))
 		{
 			$this->log('Attempt to copy folder "'.$source.'" to "'.$strFolder.'" (circular reference)', 'DC_Folder copy()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Empty clipboard
@@ -589,7 +581,7 @@ class DC_Folder extends DataContainer implements listable, editable
 		if (!file_exists(TL_ROOT . '/' . $source) || !$this->isMounted($source))
 		{
 			$this->log('File or folder "'.$source.'" was not mounted or could not be found', 'DC_Folder delete()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		$this->import('Files');
@@ -671,13 +663,13 @@ class DC_Folder extends DataContainer implements listable, editable
 		if (!file_exists(TL_ROOT . '/' . $strFolder) || !$this->isMounted($strFolder))
 		{
 			$this->log('Folder "'.$strFolder.'" was not mounted or is not a directory', 'DC_Folder move()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		if (!preg_match('/^'.preg_quote($GLOBALS['TL_CONFIG']['uploadPath'], '/').'/i', $strFolder))
 		{
 			$this->log('Parent folder "'.$strFolder.'" is not within the files directory', 'DC_Folder move()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Empty clipboard
@@ -874,8 +866,8 @@ class DC_Folder extends DataContainer implements listable, editable
 		// Add FancyUpload scripts
 		if ($GLOBALS['TL_CONFIG']['fancyUpload'])
 		{
-			$GLOBALS['TL_CSS'][] = 'plugins/fancyupload/css/fancyupload.css?'. FANCYUPLOAD . '|screen';
-			$GLOBALS['TL_JAVASCRIPT'][] = 'plugins/fancyupload/js/fancyupload.js?' . FANCYUPLOAD;
+			$GLOBALS['TL_CSS'][] = 'plugins/fancyupload/css/fancyupload.css';
+			$GLOBALS['TL_JAVASCRIPT'][] = 'plugins/fancyupload/js/fancyupload.js';
 
 			$fancy = new stdClass();
 
@@ -936,7 +928,7 @@ class DC_Folder extends DataContainer implements listable, editable
   <ul id="fancy-list" class="fancy-hide">
     <li></li>
   </ul>'.(strlen($GLOBALS['TL_LANG'][$this->strTable]['fileupload'][1]) ? '
-  <p class="tl_help tl_tip">'.$GLOBALS['TL_LANG'][$this->strTable]['fileupload'][1].'</p>' : '').'
+  <p class="tl_help">'.$GLOBALS['TL_LANG'][$this->strTable]['fileupload'][1].'</p>' : '').'
 </div>
 
 </div>
@@ -967,7 +959,7 @@ class DC_Folder extends DataContainer implements listable, editable
 		if (!file_exists(TL_ROOT . '/' . $this->intId) || !$this->isMounted($this->intId))
 		{
 			$this->log('File or folder "'.$this->intId.'" was not mounted or could not be found', 'DC_Folder edit()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Build an array from boxes and rows (do not show excluded fields)
@@ -1031,8 +1023,8 @@ class DC_Folder extends DataContainer implements listable, editable
 						$this->strExtension = '';
 					}
 
-					// Clear the current value if it is a new folder
-					if ($this->Input->post('FORM_SUBMIT') != 'tl_files' && $this->Input->post('FORM_SUBMIT') != 'tl_templates' && $this->varValue == '__new__')
+					// Clear current value if it is a new folder
+					if ($this->Input->post('FORM_SUBMIT') != 'tl_files' && $this->varValue == '__new__')
 					{
 						$this->varValue = '';
 					}
@@ -1147,7 +1139,7 @@ window.addEvent(\'domready\', function()
 		if ($GLOBALS['TL_DCA'][$this->strTable]['config']['notEditable'])
 		{
 			$this->log('Table ' . $this->strTable . ' is not editable', 'DC_Folder editAll()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Get current IDs from session
@@ -1317,7 +1309,7 @@ window.addEvent(\'domready\', function()
 <div id="fields" class="tl_checkbox_container">
 <input type="checkbox" id="check_all" class="tl_checkbox" onclick="Backend.toggleCheckboxes(this);" /> <label for="check_all" style="color:#a6a6a6;"><em>'.$GLOBALS['TL_LANG']['MSC']['selectAll'].'</em></label><br />'.$options.'
 </div>'.(($GLOBALS['TL_CONFIG']['showHelp'] && strlen($GLOBALS['TL_LANG']['MSC']['all_fields'][1])) ? '
-<p class="tl_help tl_tip">'.$GLOBALS['TL_LANG']['MSC']['all_fields'][1].'</p>' : '').'
+<p class="tl_help">'.$GLOBALS['TL_LANG']['MSC']['all_fields'][1].'</p>' : '').'
 </div>
 
 </div>
@@ -1348,15 +1340,10 @@ window.addEvent(\'domready\', function()
 	{
 		$this->isValid($this->intId);
 
-		if (is_dir(TL_ROOT .'/'. $this->intId))
+		if (is_dir(TL_ROOT . '/' . $this->intId))
 		{
 			$this->log('Directory "'.$this->intId.'" cannot be edited', 'DC_Folder source()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
-		}
-		elseif (!file_exists(TL_ROOT .'/'. $this->intId))
-		{
-			$this->log('File "'.$this->intId.'" does not exist', 'DC_Folder source()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		$this->import('BackendUser', 'User');
@@ -1365,7 +1352,7 @@ window.addEvent(\'domready\', function()
 		if (!$this->User->isAdmin && !$this->User->hasAccess('f5', 'fop'))
 		{
 			$this->log('Not enough permissions to edit file source of file "'.$this->intId.'"', 'DC_Folder source()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		$objFile = new File($this->intId);
@@ -1374,7 +1361,7 @@ window.addEvent(\'domready\', function()
 		if (!in_array($objFile->extension, trimsplit(',', $GLOBALS['TL_CONFIG']['editableFiles'])))
 		{
 			$this->log('File type "'.$objFile->extension.'" ('.$this->intId.') is not allowed to be edited', 'DC_Folder source()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		$strContent = $objFile->getContent();
@@ -1398,23 +1385,6 @@ window.addEvent(\'domready\', function()
 			$this->reload();
 		}
 
-		$editArea = '';
-
-		// Prepare the code editor
-		if ($GLOBALS['TL_CONFIG']['useCE'])
-		{
-			$this->ceFields = array('ctrl_source');
-			$this->ceField = 'ctrl_source'; // Backwards compatibility
-			$this->language = $GLOBALS['TL_LANGUAGE'];
-			$this->extension = $objFile->extension;
-
-			// Load the code editor configuration
-			ob_start();
-			include(TL_ROOT . '/system/config/editArea.php');
-			$editArea = ob_get_contents();
-			ob_end_clean();
-		}
-
 		return'
 <div id="tl_buttons">
 <a href="'.$this->getReferer(true).'" class="header_back" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['backBT']).'" accesskey="b" onclick="Backend.getScrollOffset();">'.$GLOBALS['TL_LANG']['MSC']['backBT'].'</a>
@@ -1426,9 +1396,9 @@ window.addEvent(\'domready\', function()
 <div class="tl_formbody_edit">
 <input type="hidden" name="FORM_SUBMIT" value="tl_files" />
 <div class="tl_tbox block">
-  <h3><label for="ctrl_source">'.$GLOBALS['TL_LANG']['tl_files']['editor'][0].'</label></h3>
-  <textarea name="source" id="ctrl_source" class="tl_textarea monospace" rows="12" cols="80" style="height:400px;" onfocus="Backend.getScrollOffset();">' . "\n" . htmlspecialchars($strContent) . '</textarea>' . (($GLOBALS['TL_CONFIG']['showHelp'] && strlen($GLOBALS['TL_LANG']['tl_files']['editor'][1])) ? '
-  <p class="tl_help tl_tip">'.$GLOBALS['TL_LANG']['tl_files']['editor'][1].'</p>' : '') . '
+  <h3><label for="ctrl_source">'.$GLOBALS['TL_LANG']['tl_files']['editor'][0].'</label> ' . $this->generateImage('wrap.gif', $GLOBALS['TL_LANG']['MSC']['wordWrap'], 'title="'.specialchars($GLOBALS['TL_LANG']['MSC']['wordWrap']).'" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_source\');"') . '</h3>
+  <textarea name="source" id="ctrl_source" class="tl_textarea monospace" rows="12" cols="80" style="height:400px;" onfocus="Backend.getScrollOffset();">' . "\n" . specialchars($strContent) . '</textarea>' . (($GLOBALS['TL_CONFIG']['showHelp'] && strlen($GLOBALS['TL_LANG']['tl_files']['editor'][1])) ? '
+  <p class="tl_help">'.$GLOBALS['TL_LANG']['tl_files']['editor'][1].'</p>' : '') . '
 </div>
 </div>
 
@@ -1440,7 +1410,7 @@ window.addEvent(\'domready\', function()
 </div>
 
 </div>
-</form>' . "\n\n" . $editArea;
+</form>';
 	}
 
 
@@ -1453,7 +1423,7 @@ window.addEvent(\'domready\', function()
 		if (!is_dir(TL_ROOT . '/' . $this->intId))
 		{
 			$this->log('Resource "' . $this->intId . '" is not a directory', 'DC_Folder protect()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Remove protection
@@ -1613,13 +1583,13 @@ window.addEvent(\'domready\', function()
 			{
 				if (!is_dir($path . '/' . $v) && $v != '.DS_Store')
 				{
-					$files[] = $path . '/' . $v;
+					$files[] = $path.'/'.$v;
 					continue;
 				}
 
 				if ($v == '__new__')
 				{
-					$this->Files->rmdir(str_replace(TL_ROOT.'/', '', $path) . '/' . $v);
+					$this->Files->rmdir($path . '/' . $v);
 					continue;
 				}
 
@@ -1643,33 +1613,11 @@ window.addEvent(\'domready\', function()
 
 			$md5 = md5($folders[$f]);
 			$content = scan($folders[$f]);
+			$countFiles = count($content);
 			$folderAttribute = 'style="margin-left:20px;"';
 			$currentFolder = str_replace(TL_ROOT.'/', '', $folders[$f]);
 			$session['filetree'][$md5] = is_numeric($session['filetree'][$md5]) ? $session['filetree'][$md5] : 0;
 			$currentEncoded = $this->urlEncode($currentFolder);
-			$countFiles = count($content);
-
-			// Subtract files that will not be shown
-			if (!empty($this->arrValidFileTypes))
-			{
-				foreach ($content as $file)
-				{
-					// Folders
-					if (is_dir($folders[$f] .'/'. $file))
-					{
-						if ($file == '.svn')
-						{
-							--$countFiles;
-						}
-					}
-
-					// Files
-					elseif (!in_array(strtolower(substr($file, (strrpos($file, '.') + 1))), $this->arrValidFileTypes))
-					{
-						--$countFiles;
-					}
-				}
-			}
 
 			// Add a toggle button if there are childs
 			if ($countFiles > 0)
@@ -1677,7 +1625,7 @@ window.addEvent(\'domready\', function()
 				$folderAttribute = '';
 				$img = ($session['filetree'][$md5] == 1) ? 'folMinus.gif' : 'folPlus.gif';
 				$alt = ($session['filetree'][$md5] == 1) ? $GLOBALS['TL_LANG']['MSC']['collapseNode'] : $GLOBALS['TL_LANG']['MSC']['expandNode'];
-				$return .= '<a href="'.$this->addToUrl('tg='.$md5).'" title="'.specialchars($alt).'" onclick="Backend.getScrollOffset(); return AjaxRequest.toggleFileManager(this, \'filetree_'.$md5.'\', \''.$currentFolder.'\', '.$level.');">'.$this->generateImage($img, '', 'style="margin-right:2px;"').'</a>';
+				$return .= '<a href="'.$this->addToUrl('tg='.$md5).'" title="'.specialchars($alt).'" onclick="Backend.getScrollOffset(); return AjaxRequest.toggleFileManager(this, \'filetree_'.$md5.'\', \''.$currentFolder.'\', '.$level.');">'.$this->generateImage($img, specialchars($alt), 'style="margin-right:2px;"').'</a>';
 			}
 
 			$protected = ($blnProtected === true || array_search('.htaccess', $content) !== false) ? true : false;
@@ -1702,7 +1650,7 @@ window.addEvent(\'domready\', function()
 			$return .= '</div><div style="clear:both;"></div></li>';
 
 			// Call next node
-			if (count($content) > 0 && $session['filetree'][$md5] == 1)
+			if ($countFiles > 0 && $session['filetree'][$md5] == 1)
 			{
 				$return .= '<li class="parent" id="filetree_'.$md5.'"><ul class="level_'.$level.'">';
 				$return .= $this->generateTree($folders[$f], ($intMargin + $intSpacing), false, $protected, $arrClipboard);
@@ -1740,7 +1688,7 @@ window.addEvent(\'domready\', function()
 					$_height = ($objFile->height < 70) ? $objFile->height : 70;
 					$_width = (($objFile->width * $_height / $objFile->height) > 400) ? 90 : '';
 
-					$thumbnail .= '<br /><a href="contao/popup.php?src='.$currentEncoded.'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['view']).'" onclick="Backend.openWindow(this, '.$popupWidth.', '.$popupHeight.'); return false;" ><img src="' . $this->getImage($currentEncoded, $_width, $_height) . '" alt="" style="margin:0px 0px 2px 23px;" /></a>';
+					$thumbnail .= '<br /><a href="typolight/popup.php?src='.$currentEncoded.'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['view']).'" onclick="Backend.openWindow(this, '.$popupWidth.', '.$popupHeight.'); return false;" ><img src="' . $this->getImage($currentEncoded, $_width, $_height) . '" alt="" style="margin:0px 0px 2px 23px;" /></a>';
 				}
 			}
 			else
@@ -1757,7 +1705,7 @@ window.addEvent(\'domready\', function()
 			}
 			else
 			{
-				$return .= '<a href="contao/popup.php?src='.$currentEncoded.'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['view']).'" onclick="Backend.openWindow(this, '.$popupWidth.', '.$popupHeight.'); return false;" >' . $this->generateImage($objFile->icon).' '.utf8_convert_encoding(specialchars(basename($currentFile)), $GLOBALS['TL_CONFIG']['characterSet']).'</a>'.$thumbnail.'</div> <div class="tl_right">';
+				$return .= '<a href="typolight/popup.php?src='.$currentEncoded.'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['view']).'" onclick="Backend.openWindow(this, '.$popupWidth.', '.$popupHeight.'); return false;" >' . $this->generateImage($objFile->icon).' '.utf8_convert_encoding(specialchars(basename($currentFile)), $GLOBALS['TL_CONFIG']['characterSet']).'</a>'.$thumbnail.'</div> <div class="tl_right">';
 			}
 
 			// Buttons
@@ -1819,27 +1767,15 @@ window.addEvent(\'domready\', function()
 	{
 		$strFolder = $this->Input->get('pid', true);
 
-		// Check the path
-		if (strpos($strFile, '../') !== false)
-		{
-			$this->log('Invalid file name "'.$strFile.'" (hacking attempt)', 'DC_Folder isValid()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
-		}
-		elseif (strpos($strFolder, '../') !== false)
-		{
-			$this->log('Invalid folder name "'.$strFolder.'" (hacking attempt)', 'DC_Folder isValid()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
-		}
-
 		// Check for valid file types
-		if (!empty($this->arrValidFileTypes) && is_file(TL_ROOT . '/' . $strFile))
+		if (!empty($this->arrValidFileTypes))
 		{
 			$fileinfo = preg_replace('/.*\.(.*)$/ui', '$1', $strFile);
 
 			if (!in_array(strtolower($fileinfo), $this->arrValidFileTypes))
 			{
 				$this->log('File "'.$strFile.'" is not an allowed file type', 'DC_Folder isValid()', TL_ERROR);
-				$this->redirect('contao/main.php?act=error');
+				$this->redirect('typolight/main.php?act=error');
 			}
 		}
 
@@ -1847,14 +1783,14 @@ window.addEvent(\'domready\', function()
 		if (!preg_match('/^'.preg_quote($GLOBALS['TL_CONFIG']['uploadPath'], '/').'/i', $strFile))
 		{
 			$this->log('File or folder "'.$strFile.'" is not within the files directory', 'DC_Folder isValid()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Check whether the parent folder is within the files directory
 		if ($strFolder && !preg_match('/^'.preg_quote($GLOBALS['TL_CONFIG']['uploadPath'], '/').'/i', $strFolder))
 		{
 			$this->log('Parent folder "'.$strFolder.'" is not within the files directory', 'DC_Folder isValid()', TL_ERROR);
-			$this->redirect('contao/main.php?act=error');
+			$this->redirect('typolight/main.php?act=error');
 		}
 
 		// Do not allow file operations on root folders
@@ -1863,7 +1799,7 @@ window.addEvent(\'domready\', function()
 			if (in_array($strFile, $this->arrFilemounts))
 			{
 				$this->log('Attempt to edit, copy, move or delete root folder "'.$strFile.'"', 'DC_Folder isValid()', TL_ERROR);
-				$this->redirect('contao/main.php?act=error');
+				$this->redirect('typolight/main.php?act=error');
 			}
 		}
 

@@ -1,10 +1,8 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
- * Contao Open Source CMS
- * Copyright (C) 2005-2011 Leo Feyer
- *
- * Formerly known as TYPOlight Open Source CMS.
+ * TYPOlight Open Source CMS
+ * Copyright (C) 2005-2010 Leo Feyer
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,8 +19,8 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Leo Feyer 2005-2011
- * @author     Leo Feyer <http://www.contao.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Frontend
  * @license    LGPL
  * @filesource
@@ -33,8 +31,8 @@
  * Class FormSelectMenu
  *
  * Form field "select menu".
- * @copyright  Leo Feyer 2005-2011
- * @author     Leo Feyer <http://www.contao.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Controller
  */
 class FormSelectMenu extends Widget

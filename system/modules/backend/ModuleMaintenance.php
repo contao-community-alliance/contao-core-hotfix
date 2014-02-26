@@ -1,10 +1,8 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
- * Contao Open Source CMS
- * Copyright (C) 2005-2011 Leo Feyer
- *
- * Formerly known as TYPOlight Open Source CMS.
+ * TYPOlight Open Source CMS
+ * Copyright (C) 2005-2010 Leo Feyer
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,8 +19,8 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Leo Feyer 2005-2011
- * @author     Leo Feyer <http://www.contao.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Backend
  * @license    LGPL
  * @filesource
@@ -33,8 +31,8 @@
  * Class ModuleMaintenance
  *
  * Back end module "maintenance".
- * @copyright  Leo Feyer 2005-2011
- * @author     Leo Feyer <http://www.contao.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Controller
  */
 class ModuleMaintenance extends BackendModule
@@ -63,7 +61,7 @@ class ModuleMaintenance extends BackendModule
 
 		$this->Template->href = $this->getReferer(true);
 		$this->Template->title = specialchars($GLOBALS['TL_LANG']['MSC']['backBT']);
-		$this->Template->action = ampersand($this->Environment->request);
+		$this->Template->action = ampersand($this->Environment->request, true);
 		$this->Template->selectAll = $GLOBALS['TL_LANG']['MSC']['selectAll'];
 		$this->Template->button = $GLOBALS['TL_LANG']['MSC']['backBT'];
 	}
@@ -296,7 +294,7 @@ class ModuleMaintenance extends BackendModule
 			echo '</li>';
 			echo '</ol>';
 			echo '<div style="font-family:Verdana,sans-serif; font-size:11px; margin:18px 3px 12px 3px; overflow:hidden;">';
-			echo '<a href="' . $this->Environment->base . 'contao/main.php?do=maintenance" style="float:left;">&lt; Click here to go back</a>';
+			echo '<a href="' . $this->Environment->base . 'typolight/main.php?do=maintenance" style="float:left;">&lt; Click here to go back</a>';
 			echo '<a href="' . str_replace('toc=1', 'toc=', $this->Environment->base . $this->Environment->request) . '" style="float:right;">Click here to proceed &gt;</a>';
 			echo '</div>';
 			echo '</div>';
@@ -338,7 +336,7 @@ class ModuleMaintenance extends BackendModule
 
 			echo '</ol>';
 			echo '<div style="font-family:Verdana,sans-serif; font-size:11px; margin:18px 3px 12px 3px; overflow:hidden;">';
-			echo '<a href="' . $this->Environment->base . 'contao/main.php?do=maintenance" style="float:left;">&lt; Click here to go back</a>';
+			echo '<a href="' . $this->Environment->base . 'typolight/main.php?do=maintenance" style="float:left;">&lt; Click here to go back</a>';
 			echo '<a href="' . $url . '" style="float:right;">Click here to proceed &gt;</a>';
 			echo '</div>';
 			echo '</div>';
@@ -398,7 +396,7 @@ class ModuleMaintenance extends BackendModule
 		$time = time();
 
 		// Add error message
-		if ($_SESSION['REBUILD_INDEX_ERROR'] != '')
+		if (strlen($_SESSION['REBUILD_INDEX_ERROR']))
 		{
 			$this->Template->indexMessage = $_SESSION['REBUILD_INDEX_ERROR'];
 			$_SESSION['REBUILD_INDEX_ERROR'] = '';
@@ -435,34 +433,37 @@ class ModuleMaintenance extends BackendModule
 			// Hide unpublished elements
 			$this->setCookie('FE_PREVIEW', 0, ($time - 86400), $GLOBALS['TL_CONFIG']['websitePath']);
 
-			// Purge the temporary directory
+			// Purge temporary directory
 			$this->import('Automator');
 			$this->Automator->purgeTempFolder();
 
-			// Calculate the hash
+			// Calculate hash
 			$strHash = sha1(session_id() . (!$GLOBALS['TL_CONFIG']['disableIpCheck'] ? $this->Environment->ip : '') . 'FE_USER_AUTH');
 
 			// Remove old sessions
 			$this->Database->prepare("DELETE FROM tl_session WHERE tstamp<? OR hash=?")
 						   ->execute(($time - $GLOBALS['TL_CONFIG']['sessionTimeout']), $strHash);
 
-			// Log in the front end user
+			// Log in front end user
 			if (is_numeric($this->Input->get('user')) && $this->Input->get('user') > 0)
 			{
-				// Insert a new session
+				// Insert new session
 				$this->Database->prepare("INSERT INTO tl_session (pid, tstamp, name, sessionID, ip, hash) VALUES (?, ?, ?, ?, ?, ?)")
 							   ->execute($this->Input->get('user'), $time, 'FE_USER_AUTH', session_id(), $this->Environment->ip, $strHash);
 
-				// Set the cookie
+				// Set cookie
 				$this->setCookie('FE_USER_AUTH', $strHash, ($time + $GLOBALS['TL_CONFIG']['sessionTimeout']), $GLOBALS['TL_CONFIG']['websitePath']);
 			}
 
-			// Log out the front end user
+			// Log out front end user
 			else
 			{
-				// Unset the cookies
+				// Unset cookie
 				$this->setCookie('FE_USER_AUTH', $strHash, ($time - 86400), $GLOBALS['TL_CONFIG']['websitePath']);
-				$this->setCookie('FE_AUTO_LOGIN', $this->Input->cookie('FE_AUTO_LOGIN'), ($time - 86400), $GLOBALS['TL_CONFIG']['websitePath']);
+
+				// Unset the recall cookies
+				$this->setCookie('tl_recall_fe', '', ($time - 86400), '/');
+				$this->setCookie('tl_recall_fe', '', ($time - 86400), $GLOBALS['TL_CONFIG']['websitePath']);
 			}
 
 			$strBuffer = '';

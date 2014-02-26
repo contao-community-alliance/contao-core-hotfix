@@ -1,10 +1,8 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
 
 /**
- * Contao Open Source CMS
- * Copyright (C) 2005-2011 Leo Feyer
- *
- * Formerly known as TYPOlight Open Source CMS.
+ * TYPOlight Open Source CMS
+ * Copyright (C) 2005-2010 Leo Feyer
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,8 +19,8 @@
  * Software Foundation website at <http://www.gnu.org/licenses/>.
  *
  * PHP version 5
- * @copyright  Leo Feyer 2005-2011
- * @author     Leo Feyer <http://www.contao.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Backend
  * @license    LGPL
  * @filesource
@@ -33,8 +31,8 @@
  * Class OptionWizard
  *
  * Provide methods to handle form field option.
- * @copyright  Leo Feyer 2005-2011
- * @author     Leo Feyer <http://www.contao.org>
+ * @copyright  Leo Feyer 2005-2010
+ * @author     Leo Feyer <http://www.typolight.org>
  * @package    Controller
  */
 class OptionWizard extends Widget
@@ -168,8 +166,8 @@ class OptionWizard extends Widget
 		$return .= '<table cellspacing="0" cellpadding="0" class="tl_optionwizard" id="ctrl_'.$this->strId.'" summary="Field wizard">
   <thead>
     <tr>
-      <th>'.$GLOBALS['TL_LANG']['MSC']['ow_value'].'</th>
-      <th>'.$GLOBALS['TL_LANG']['MSC']['ow_label'].'</th>
+      <th>'.$GLOBALS['TL_LANG'][$this->strTable]['opValue'].'</th>
+      <th>'.$GLOBALS['TL_LANG'][$this->strTable]['opLabel'].'</th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
@@ -177,17 +175,15 @@ class OptionWizard extends Widget
   </thead>
   <tbody>';
 
-		$tabindex = 0;
-
 		// Add fields
 		for ($i=0; $i<count($this->varValue); $i++)
 		{
 			$return .= '
     <tr>
-      <td><input type="text" name="'.$this->strId.'['.$i.'][value]" id="'.$this->strId.'_value_'.$i.'" class="tl_text_2" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]['value']).'" /></td>
-      <td><input type="text" name="'.$this->strId.'['.$i.'][label]" id="'.$this->strId.'_label_'.$i.'" class="tl_text_2" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]['label']).'" /></td>
-      <td><input type="checkbox" name="'.$this->strId.'['.$i.'][default]" id="'.$this->strId.'_default_'.$i.'" class="fw_checkbox" tabindex="'.++$tabindex.'" value="1"'.($this->varValue[$i]['default'] ? ' checked="checked"' : '').' /> <label for="'.$this->strId.'_default_'.$i.'">'.$GLOBALS['TL_LANG']['MSC']['ow_default'].'</label></td>
-      <td><input type="checkbox" name="'.$this->strId.'['.$i.'][group]" id="'.$this->strId.'_group_'.$i.'" class="fw_checkbox" tabindex="'.++$tabindex.'" value="1"'.($this->varValue[$i]['group'] ? ' checked="checked"' : '').' /> <label for="'.$this->strId.'_group_'.$i.'">'.$GLOBALS['TL_LANG']['MSC']['ow_group'].'</label></td>';
+      <td><input type="text" name="'.$this->strId.'['.$i.'][value]" id="'.$this->strId.'_value_'.$i.'" class="tl_text_2" value="'.specialchars($this->varValue[$i]['value']).'" /></td>
+      <td><input type="text" name="'.$this->strId.'['.$i.'][label]" id="'.$this->strId.'_label_'.$i.'" class="tl_text_2" value="'.specialchars($this->varValue[$i]['label']).'" /></td>
+      <td><input type="checkbox" name="'.$this->strId.'['.$i.'][default]" id="'.$this->strId.'_default_'.$i.'" class="fw_checkbox" value="1"'.($this->varValue[$i]['default'] ? ' checked="checked"' : '').' /> <label for="'.$this->strId.'_default_'.$i.'">'.$GLOBALS['TL_LANG'][$this->strTable]['opDefault'].'</label></td>
+      <td><input type="checkbox" name="'.$this->strId.'['.$i.'][group]" id="'.$this->strId.'_group_'.$i.'" class="fw_checkbox" value="1"'.($this->varValue[$i]['group'] ? ' checked="checked"' : '').' /> <label for="'.$this->strId.'_group_'.$i.'">'.$GLOBALS['TL_LANG'][$this->strTable]['opGroup'].'</label></td>';
 			
 			// Add row buttons
 			$return .= '
@@ -195,7 +191,7 @@ class OptionWizard extends Widget
 
 			foreach ($arrButtons as $button)
 			{
-				$return .= '<a href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['ow_'.$button]).'" onclick="Backend.optionsWizard(this, \''.$button.'\', \'ctrl_'.$this->strId.'\'); return false;">'.$this->generateImage($button.'.gif', $GLOBALS['TL_LANG']['MSC']['ow_'.$button]).'</a> ';
+				$return .= '<a href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.specialchars($GLOBALS['TL_LANG'][$this->strTable][$button][0]).'" onclick="Backend.optionsWizard(this, \''.$button.'\', \'ctrl_'.$this->strId.'\'); return false;">'.$this->generateImage($button.'.gif', $GLOBALS['TL_LANG'][$this->strTable][$button][0]).'</a> ';
 			}
 
 			$return .= '</td>
