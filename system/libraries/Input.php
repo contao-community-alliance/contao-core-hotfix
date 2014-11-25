@@ -107,6 +107,8 @@ class Input
 				$varValue = $this->encodeSpecialChars($varValue);
 			}
 
+			$varValue = $this->encodeInsertTags($varValue);
+
 			$this->arrCache[$strCacheKey][$strKey] = $varValue;
 		}
 
@@ -136,6 +138,11 @@ class Input
 			if (!$blnDecodeEntities)
 			{
 				$varValue = $this->encodeSpecialChars($varValue);
+			}
+
+			if (TL_MODE != 'BE')
+			{
+				$varValue = $this->encodeInsertTags($varValue);
 			}
 
 			$this->arrCache[$strCacheKey][$strKey] = $varValue;
@@ -169,6 +176,11 @@ class Input
 				$varValue = $this->encodeSpecialChars($varValue);
 			}
 
+			if (TL_MODE != 'BE')
+			{
+				$varValue = $this->encodeInsertTags($varValue);
+			}
+
 			$this->arrCache[$strCacheKey][$strKey] = $varValue;
 		}
 
@@ -191,6 +203,40 @@ class Input
 
 			$varValue = $this->stripSlashes($varValue);
 			$varValue = $this->xssClean($varValue);
+
+			if (TL_MODE != 'BE')
+			{
+				$varValue = $this->encodeInsertTags($varValue);
+			}
+
+			$this->arrCache[$strCacheKey][$strKey] = $varValue;
+		}
+
+		return $this->arrCache[$strCacheKey][$strKey];
+	}
+
+
+	/**
+	 * Return a raw, unsafe and unfiltered $_POST variable
+	 *
+	 * @param string $strKey The variable name
+	 *
+	 * @return mixed The raw variable value
+	 *
+	 * @internal
+	 */
+	public function postUnsafeRaw($strKey)
+	{
+		$strCacheKey = 'postUnsafeRaw';
+
+		if (!isset($this->arrCache[$strCacheKey][$strKey]))
+		{
+			$varValue = $this->findPost($strKey);
+
+			if ($varValue === null)
+			{
+				return $varValue;
+			}
 
 			$this->arrCache[$strCacheKey][$strKey] = $varValue;
 		}
@@ -223,10 +269,25 @@ class Input
 				$varValue = $this->encodeSpecialChars($varValue);
 			}
 
+			$varValue = $this->encodeInsertTags($varValue);
+
 			$this->arrCache[$strCacheKey][$strKey] = $varValue;
 		}
 
 		return $this->arrCache[$strCacheKey][$strKey];
+	}
+
+
+	/**
+	 * Encode the opening and closing delimiters of insert tags
+	 *
+	 * @param string $varValue The input string
+	 *
+	 * @return string The encoded input string
+	 */
+	public static function encodeInsertTags($varValue)
+	{
+		return str_replace(array('{{', '}}'), array('&#123;&#123;', '&#125;&#125;'), $varValue);
 	}
 
 

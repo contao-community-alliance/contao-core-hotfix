@@ -96,7 +96,7 @@ class InstallTool extends Controller
 			$GLOBALS['TL_CONFIG']['ftpHost'] = $this->Input->post('host');
 			$GLOBALS['TL_CONFIG']['ftpPath'] = $this->Input->post('path');
 			$GLOBALS['TL_CONFIG']['ftpUser'] = $this->Input->post('username', true);
-			$GLOBALS['TL_CONFIG']['ftpPass'] = $this->Input->post('password', true);
+			$GLOBALS['TL_CONFIG']['ftpPass'] = $this->Input->postUnsafeRaw('password');
 
 			// Add a trailing slash
 			if ($GLOBALS['TL_CONFIG']['ftpPath'] != '' && substr($GLOBALS['TL_CONFIG']['ftpPath'], -1) != '/')
@@ -198,7 +198,7 @@ class InstallTool extends Controller
 			list($strPassword, $strSalt) = explode(':', $GLOBALS['TL_CONFIG']['installPassword']);
 
 			// Password is correct but not yet salted
-			if (!strlen($strSalt) && $strPassword == sha1($this->Input->post('password')))
+			if (!strlen($strSalt) && $strPassword == sha1($this->Input->postUnsafeRaw('password')))
 			{
 				$strSalt = substr(md5(uniqid('', true)), 0, 23);
 				$strPassword = sha1($strSalt . $this->Input->post('password'));
@@ -206,7 +206,7 @@ class InstallTool extends Controller
 			}
 
 			// Set cookie
-			if (strlen($strSalt) && $strPassword == sha1($strSalt . $this->Input->post('password')))
+			if (strlen($strSalt) && $strPassword == sha1($strSalt . $this->Input->postUnsafeRaw('password')))
 			{
 				$_SESSION['TL_INSTALL_EXPIRE'] = (time() + 300);
 				$_SESSION['TL_INSTALL_AUTH'] = md5(uniqid('', true) . (!$GLOBALS['TL_CONFIG']['disableIpCheck'] ? $this->Environment->ip : '') . session_id());
@@ -242,7 +242,7 @@ class InstallTool extends Controller
 		 */
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_install')
 		{
-			$strPassword = $this->Input->post('password', true);
+			$strPassword = $this->Input->postUnsafeRaw('password');
 
 			// Do not allow special characters
 			if (preg_match('/[#\(\)\/<=>]/', $strPassword))
@@ -251,7 +251,7 @@ class InstallTool extends Controller
 			}
 
 			// Passwords do not match
-			elseif ($strPassword != $this->Input->post('confirm_password', true))
+			elseif ($strPassword != $this->Input->postUnsafeRaw('confirm_password'))
 			{
 				$this->Template->passwordError = $GLOBALS['TL_LANG']['ERR']['passwordMatch'];
 			}
