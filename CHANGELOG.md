@@ -5,6 +5,12 @@ Version 2.11.17 (2014-04-07)
 ----------------------------
 
 ### Fixed
+Fixed a potential directory traversal vulnerability.
+
+### Fixed
+Handle nested insert tags in strip_insert_tags().
+
+### Fixed
 Fixed a critical vulnerability of the install tool (see #6855).
 
 

@@ -1718,12 +1718,12 @@ window.addEvent(\'domready\', function() {
 		$strFolder = $this->Input->get('pid', true);
 
 		// Check the path
-		if (strpos($strFile, '../') !== false)
+		if (Files::isInsecurePath($strFile))
 		{
 			$this->log('Invalid file name "'.$strFile.'" (hacking attempt)', 'DC_Folder isValid()', TL_ERROR);
 			$this->redirect('contao/main.php?act=error');
 		}
-		elseif (strpos($strFolder, '../') !== false)
+		elseif (Files::isInsecurePath($strFolder))
 		{
 			$this->log('Invalid folder name "'.$strFolder.'" (hacking attempt)', 'DC_Folder isValid()', TL_ERROR);
 			$this->redirect('contao/main.php?act=error');

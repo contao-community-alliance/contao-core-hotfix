@@ -77,8 +77,8 @@ class Index extends Backend
 
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_password')
 		{
-			$pw = $this->Input->post('password');
-			$cnf = $this->Input->post('confirm');
+			$pw = $this->Input->postUnsafeRaw('password');
+			$cnf = $this->Input->postUnsafeRaw('confirm');
 
 			// Do not allow special characters
 			if (preg_match('/[#\(\)\/<=>]/', html_entity_decode($this->Input->post('password'))))

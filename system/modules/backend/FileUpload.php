@@ -91,9 +91,9 @@ class FileUpload extends Backend
 	 */
 	public function uploadTo($strTarget, $strKey)
 	{
-		if ($strTarget == '' || strpos($strTarget, '../') !== false)
+		if ($strTarget == '' || Files::isInsecurePath($strTarget))
 		{
-			throw new Exception("Invalid target path $strTarget");
+			throw new InvalidArgumentException('Invalid target path ' . $strTarget);
 		}
 
 		if ($strKey == '')

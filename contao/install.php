@@ -107,9 +107,9 @@ class InstallTool extends Backend
 			$GLOBALS['TL_CONFIG']['ftpPath'] = $this->Input->post('path');
 			$GLOBALS['TL_CONFIG']['ftpUser'] = $this->Input->post('username', true);
 
-			if ($this->Input->post('password', true) != '*****')
+			if ($this->Input->postUnsafeRaw('password') != '*****')
 			{
-				$GLOBALS['TL_CONFIG']['ftpPass'] = $this->Input->post('password', true);
+				$GLOBALS['TL_CONFIG']['ftpPass'] = $this->Input->postUnsafeRaw('password');
 			}
 
 			$GLOBALS['TL_CONFIG']['ftpSSL']  = $this->Input->post('ssl');
@@ -179,7 +179,7 @@ class InstallTool extends Backend
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['ftpPath']", $GLOBALS['TL_CONFIG']['ftpPath']);
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['ftpUser']", $GLOBALS['TL_CONFIG']['ftpUser']);
 
-				if ($this->Input->post('password', true) != '*****')
+				if ($this->Input->postUnsafeRaw('password') != '*****')
 				{
 					$this->Config->update("\$GLOBALS['TL_CONFIG']['ftpPass']", $GLOBALS['TL_CONFIG']['ftpPass']);
 				}
@@ -234,15 +234,15 @@ class InstallTool extends Backend
 			list($strPassword, $strSalt) = explode(':', $GLOBALS['TL_CONFIG']['installPassword']);
 
 			// Password is correct but not yet salted
-			if ($strSalt == '' && $strPassword == sha1($this->Input->post('password')))
+			if ($strSalt == '' && $strPassword == sha1($this->Input->postUnsafeRaw('password')))
 			{
 				$strSalt = substr(md5(uniqid(mt_rand(), true)), 0, 23);
-				$strPassword = sha1($strSalt . $this->Input->post('password'));
+				$strPassword = sha1($strSalt . $this->Input->postUnsafeRaw('password'));
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['installPassword']", $strPassword . ':' . $strSalt);
 			}
 
 			// Set the cookie
-			if ($strSalt != '' && $strPassword == sha1($strSalt . $this->Input->post('password')))
+			if ($strSalt != '' && $strPassword == sha1($strSalt . $this->Input->postUnsafeRaw('password')))
 			{
 				$this->setAuthCookie();
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['installCount']", 0);
@@ -285,7 +285,7 @@ class InstallTool extends Backend
 		 */
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_install')
 		{
-			$strPassword = $this->Input->post('password', true);
+			$strPassword = $this->Input->postUnsafeRaw('password');
 
 			// Do not allow special characters
 			if (preg_match('/[#\(\)\/<=>]/', $strPassword))
@@ -294,7 +294,7 @@ class InstallTool extends Backend
 			}
 
 			// The passwords do not match
-			elseif ($strPassword != $this->Input->post('confirm_password', true))
+			elseif ($strPassword != $this->Input->postUnsafeRaw('confirm_password'))
 			{
 				$this->Template->passwordError = $GLOBALS['TL_LANG']['ERR']['passwordMatch'];
 			}

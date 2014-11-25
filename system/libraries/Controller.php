@@ -71,7 +71,7 @@ abstract class Controller extends System
 
 		if (!in_array($strFormat, $arrAllowed))
 		{
-			throw new Exception("Invalid output format $strFormat");
+			throw new InvalidArgumentException('Invalid output format ' . $strFormat);
 		}
 
 		$strTemplate = basename($strTemplate);
@@ -81,11 +81,16 @@ abstract class Controller extends System
 		if (TL_MODE == 'FE')
 		{
 			global $objPage;
-			$strTemplateGroup = str_replace(array('../', 'templates/'), '', $objPage->templateGroup);
+			$strTemplateGroup = $objPage->templateGroup;
 
 			if ($strTemplateGroup != '')
 			{
 				$strKey = $strTemplateGroup . '/' . $strKey;
+
+				if (Files::isInsecurePath($strTemplateGroup))
+				{
+					throw new RuntimeException('Invalid path ' . $strTemplateGroup);
+				}
 			}
 		}
 
@@ -111,6 +116,11 @@ abstract class Controller extends System
 		{
 			$strFile = $strPath . '/' . $strTemplateGroup . '/' . $strFilename;
 
+			if (Files::isInsecurePath($strFile))
+			{
+				throw new RuntimeException('Invalid path ' . $strFile);
+			}
+
 			if (file_exists($strFile))
 			{
 				$objCache->$strKey = 'templates/' . $strTemplateGroup . '/' . $strFilename;
@@ -131,6 +141,11 @@ abstract class Controller extends System
 
 		// Then check the global templates directory
 		$strFile = $strPath . '/' . $strFilename;
+
+		if (Files::isInsecurePath($strFile))
+		{
+			throw new RuntimeException('Invalid path ' . $strFile);
+		}
 
 		if (file_exists($strFile))
 		{
@@ -2338,8 +2353,11 @@ abstract class Controller extends System
 						$strFile = $arrChunks[0];
 					}
 
-					// Sanitize path
-					$strFile = str_replace('../', '', $strFile);
+					// Check the path
+					if (Files::isInsecurePath($strFile))
+					{
+						throw new RuntimeException('Invalid path ' . $strFile);
+					}
 
 					// Check maximum image width
 					if ($GLOBALS['TL_CONFIG']['maxImageWidth'] > 0 && $width > $GLOBALS['TL_CONFIG']['maxImageWidth'])
@@ -2411,8 +2429,11 @@ abstract class Controller extends System
 						$strFile = $arrChunks[0];
 					}
 
-					// Sanitize path
-					$strFile = str_replace('../', '', $strFile);
+					// Check the path
+					if (Files::isInsecurePath($strFile))
+					{
+						throw new RuntimeException('Invalid path ' . $strFile);
+					}
 
 					// Include .php, .tpl, .xhtml and .html5 files
 					if (preg_match('/\.(php|tpl|xhtml|html5)$/', $strFile) && file_exists(TL_ROOT . '/templates/' . $strFile))
