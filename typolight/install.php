@@ -119,15 +119,15 @@ class InstallTool extends Controller
 			list($strPassword, $strSalt) = explode(':', $GLOBALS['TL_CONFIG']['installPassword']);
 
 			// Password is correct but not yet salted
-			if (!strlen($strSalt) && $strPassword == sha1($this->Input->post('password')))
+			if (!strlen($strSalt) && $strPassword == sha1($this->Input->postUnsafeRaw('password')))
 			{
 				$strSalt = substr(md5(uniqid('', true)), 0, 23);
-				$strPassword = sha1($strSalt . $this->Input->post('password'));
+				$strPassword = sha1($strSalt . $this->Input->postUnsafeRaw('password'));
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['installPassword']", $strPassword . ':' . $strSalt);
 			}
 
 			// Set cookie
-			if (strlen($strSalt) && $strPassword == sha1($strSalt . $this->Input->post('password')))
+			if (strlen($strSalt) && $strPassword == sha1($strSalt . $this->Input->postUnsafeRaw('password')))
 			{
 				$_SESSION['TL_INSTALL_EXPIRE'] = (time() + 300);
 				$_SESSION['TL_INSTALL_AUTH'] = md5(uniqid('', true) . (!$GLOBALS['TL_CONFIG']['disableIpCheck'] ? $this->Environment->ip : '') . session_id());
@@ -165,14 +165,16 @@ class InstallTool extends Controller
 		 */
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_install')
 		{
+			$strPassword = $this->Input->postUnsafeRaw('password');
+
 			// Do not allow special characters
-			if (preg_match('/[#\(\)\/<=>]/', html_entity_decode($this->Input->post('password'))))
+			if (preg_match('/[#\(\)\/<=>]/', $strPassword))
 			{
 				$this->Template->passwordError = 'For security reasons you can not use these characters (=<>&/()#) here!';
 			}
 
 			// Passwords do not match
-			elseif ($this->Input->post('password') != $this->Input->post('confirm_password'))
+			elseif ($strPassword != $this->Input->postUnsafeRaw('confirm_password'))
 			{
 				$this->Template->passwordError = 'The passwords did not match!';
 			}
@@ -187,7 +189,6 @@ class InstallTool extends Controller
 			else
 			{
 				$strSalt = substr(md5(uniqid('', true)), 0, 23);
-				$strPassword = sha1($strSalt . $this->Input->post('password'));
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['installPassword']", $strPassword . ':' . $strSalt);
 
 				$this->reload();

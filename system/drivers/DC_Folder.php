@@ -529,10 +529,16 @@ class DC_Folder extends DataContainer implements listable, editable
 	public function move()
 	{
 		$error = false;
+		$strFolder = $this->Input->get('pid', true);
 
-		if (!file_exists(TL_ROOT . '/' . $this->Input->get('pid', true)) || !$this->isMounted($this->Input->get('pid', true)))
+		if ($strFolder == '' || Files::isInsecurePath($strFolder))
 		{
-			$this->log('Folder "' . $this->Input->get('pid') . '" was not mounted or is not a directory', 'DC_Folder move()', TL_ERROR);
+			throw new InvalidArgumentException('Invalid target path ' . $strFolder);
+		}
+
+		if (!file_exists(TL_ROOT . '/' . $strFolder) || !$this->isMounted($strFolder))
+		{
+			$this->log('Folder "'.$strFolder.'" was not mounted or is not a directory', 'DC_Folder move()', TL_ERROR);
 			$this->redirect('typolight/main.php?act=error');
 		}
 
@@ -1232,6 +1238,12 @@ window.addEvent(\'domready\', function()
 		}
 
 		$this->import('Files');
+		if ($this->Files->isInsecurePath($this->strPath . '/' . $varValue . $this->strExtension))
+		{
+			$this->log('Invalid file name "'.$this->strPath . '/' . $varValue . $this->strExtension.'" (hacking attempt)', 'DC_Folder isValid()', TL_ERROR);
+			$this->redirect('typolight/main.php?act=error');
+		}
+
 		$arrData = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField];
 		$varValue = utf8_romanize($varValue);
 
