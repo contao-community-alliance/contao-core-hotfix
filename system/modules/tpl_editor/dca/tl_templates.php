@@ -140,7 +140,12 @@ class tl_templates extends Backend
 		// Copy an existing template
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_create_template' && file_exists(TL_ROOT . '/system/modules/' . $this->Input->post('original')))
 		{
-			$strOriginal = preg_replace('#.*/(.*)$#', '$1', $this->Input->post('original'));
+			$strOriginal = $this->Input->post('original');
+
+			if (Files::isInsecurePath($strOriginal))
+			{
+				throw new RuntimeException(sprintf($GLOBALS['TL_LANG']['tl_templates']['invalid'], $strOriginal));
+			}
 
 			if (file_exists(TL_ROOT . '/templates/' . $strOriginal))
 			{

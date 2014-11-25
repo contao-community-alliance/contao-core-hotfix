@@ -194,19 +194,38 @@ class Environment
 
 
 	/**
-	 * Return the request URI [path]?[query] (e.g. /typolight/index.php?id=2)
+	 * Return the query string (e.g. id=2)
+	 *
+	 * @return string The query string
+	 */
+	protected function queryString()
+	{
+		if (!isset($_SERVER['QUERY_STRING']))
+		{
+			return '';
+		}
+
+		return $this->encodeRequestString($_SERVER['QUERY_STRING']);
+	}
+
+
+	/**
+	 * Return the request URI [path]?[query] (e.g. /contao/index.php?id=2)
+	 *
 	 * @return string
 	 */
 	protected function requestUri()
 	{
 		if (!empty($_SERVER['REQUEST_URI']))
 		{
-			return $_SERVER['REQUEST_URI'];
+			$strRequest = $_SERVER['REQUEST_URI'];
 		}
 		else
 		{
-			return '/' . preg_replace('/^\//i', '', $this->scriptName()) . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+			$strRequest = '/' . preg_replace('/^\//', '', $this->scriptName) . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
 		}
+
+		return $this->encodeRequestString($strRequest);
 	}
 
 
@@ -360,15 +379,7 @@ class Environment
 	 */
 	protected function request()
 	{
-		$strRequest = preg_replace('/^' . preg_quote(TL_PATH, '/') . '\/?/i', '', $this->requestUri());
-
-		if (empty($strRequest))
-		{
-			$strRequest = $this->script();
-		}
-
-		// Do not urlencode() here (thanks to Russ McRee)!
-		return $strRequest;
+		return preg_replace('/^' . preg_quote(TL_PATH, '/') . '\/?/', '', $this->requestUri);
 	}
 
 
@@ -390,6 +401,19 @@ class Environment
 	{
 		$parse_url = parse_url($this->url());
 		return preg_replace('/^www\./i', '', $parse_url['host']);
+	}
+
+
+	/**
+	 * Encode a request string preserving certain reserved characters
+	 *
+	 * @param string $strRequest The request string
+	 *
+	 * @return string The encoded request string
+	 */
+	protected function encodeRequestString($strRequest)
+	{
+		return preg_replace_callback('/[^A-Za-z0-9\-_.~&=+,\/?%\[\]]+/', function($matches) { return rawurlencode($matches[0]); }, $strRequest);
 	}
 }
 
