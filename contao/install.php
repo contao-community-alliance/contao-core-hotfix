@@ -274,9 +274,9 @@ class InstallTool extends Backend
 		$GLOBALS['TL_CONFIG']['ftpPath'] = Input::post('path');
 		$GLOBALS['TL_CONFIG']['ftpUser'] = Input::post('username', true);
 
-		if (Input::postRaw('password') != '*****')
+		if (Input::postUnsafeRaw('password') != '*****')
 		{
-			$GLOBALS['TL_CONFIG']['ftpPass'] = Input::postRaw('password');
+			$GLOBALS['TL_CONFIG']['ftpPass'] = Input::postUnsafeRaw('password');
 		}
 
 		$GLOBALS['TL_CONFIG']['ftpSSL']  = Input::post('ssl');
@@ -357,7 +357,7 @@ class InstallTool extends Backend
 			$this->Config->update("\$GLOBALS['TL_CONFIG']['ftpPath']", $GLOBALS['TL_CONFIG']['ftpPath']);
 			$this->Config->update("\$GLOBALS['TL_CONFIG']['ftpUser']", $GLOBALS['TL_CONFIG']['ftpUser']);
 
-			if (Input::postRaw('password') != '*****')
+			if (Input::postUnsafeRaw('password') != '*****')
 			{
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['ftpPass']", $GLOBALS['TL_CONFIG']['ftpPass']);
 			}
@@ -381,7 +381,7 @@ class InstallTool extends Backend
 		// The password has been generated with crypt()
 		if (Encryption::test($GLOBALS['TL_CONFIG']['installPassword']))
 		{
-			if (crypt(Input::postRaw('password'), $GLOBALS['TL_CONFIG']['installPassword']) == $GLOBALS['TL_CONFIG']['installPassword'])
+			if (crypt(Input::postUnsafeRaw('password'), $GLOBALS['TL_CONFIG']['installPassword']) === $GLOBALS['TL_CONFIG']['installPassword'])
 			{
 				$this->setAuthCookie();
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['installCount']", 0);
@@ -391,12 +391,12 @@ class InstallTool extends Backend
 		else
 		{
 			list($strPassword, $strSalt) = explode(':', $GLOBALS['TL_CONFIG']['installPassword']);
-			$blnAuthenticated = ($strSalt == '') ? ($strPassword == sha1(Input::postRaw('password'))) : ($strPassword == sha1($strSalt . Input::postRaw('password')));
+			$blnAuthenticated = ($strSalt == '') ? ($strPassword === sha1(Input::postUnsafeRaw('password'))) : ($strPassword === sha1($strSalt . Input::postUnsafeRaw('password')));
 
 			if ($blnAuthenticated)
 			{
 				// Store a crypt() version of the password
-				$strPassword = Encryption::hash(Input::postRaw('password'));
+				$strPassword = Encryption::hash(Input::postUnsafeRaw('password'));
 				$this->Config->update("\$GLOBALS['TL_CONFIG']['installPassword']", $strPassword);
 
 				$this->setAuthCookie();
@@ -416,10 +416,10 @@ class InstallTool extends Backend
 	 */
 	protected function storeInstallToolPassword()
 	{
-		$strPassword = Input::postRaw('password');
+		$strPassword = Input::postUnsafeRaw('password');
 
 		// The passwords do not match
-		if ($strPassword != Input::postRaw('confirm_password'))
+		if ($strPassword != Input::postUnsafeRaw('confirm_password'))
 		{
 			$this->Template->passwordError = $GLOBALS['TL_LANG']['ERR']['passwordMatch'];
 		}

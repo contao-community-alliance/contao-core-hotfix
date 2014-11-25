@@ -236,17 +236,21 @@ abstract class Files
 
 
 	/**
-	 * Validate a path (must not contain ../ fragments)
-	 * 
-	 * @throws \Exception If the given paths are not valid
+	 * Validate a path
+	 *
+	 * @throws \RuntimeException If the given paths are not valid
 	 */
 	protected function validate()
 	{
 		foreach (func_get_args() as $strPath)
 		{
-			if (strpos($strPath, '../') !== false)
+			if ($strPath == '') // see #5795
 			{
-				throw new \Exception('Invalid file or folder name ' . $strPath);
+				throw new \RuntimeException('No file or folder name given');
+			}
+			elseif (\Validator::isInsecurePath($strPath))
+			{
+				throw new \RuntimeException('Invalid file or folder name ' . $strPath);
 			}
 		}
 	}

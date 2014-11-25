@@ -213,7 +213,18 @@ class tl_templates extends Backend
 		if (Input::post('FORM_SUBMIT') == 'tl_create_template' && file_exists(TL_ROOT . '/system/modules/' . Input::post('original')))
 		{
 			$strOriginal = Input::post('original');
-			$strTarget = str_replace('../', '', Input::post('target'));
+
+			if (Validator::isInsecurePath($strOriginal))
+			{
+				throw new RuntimeException(sprintf($GLOBALS['TL_LANG']['tl_templates']['invalid'], $strOriginal));
+			}
+
+			$strTarget = Input::post('target');
+
+			if (Validator::isInsecurePath($strTarget))
+			{
+				throw new RuntimeException(sprintf($GLOBALS['TL_LANG']['tl_templates']['invalid'], $strTarget));
+			}
 
 			// Validate the target path
 			if (strncmp($strTarget, 'templates', 9) !== 0 || !is_dir(TL_ROOT . '/' . $strTarget))

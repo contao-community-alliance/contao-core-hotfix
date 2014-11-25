@@ -5,6 +5,12 @@ Version 3.0.6 (2013-03-21)
 --------------------------
 
 ### Fixed
+Fixed a potential directory traversal vulnerability.
+
+### Fixed
+Handle nested insert tags in strip_insert_tags().
+
+### Fixed
 Do not add links to news, events, FAQs or newsletters to the sitemap if the
 target page has not been published (see #5520).
 
