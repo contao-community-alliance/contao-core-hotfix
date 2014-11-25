@@ -694,6 +694,11 @@ class DC_Folder extends DataContainer implements listable, editable
 		$error = false;
 		$strFolder = $this->Input->get('pid', true);
 
+		if ($strFolder == '' || Files::isInsecurePath($strFolder))
+		{
+			throw new InvalidArgumentException('Invalid target path ' . $strFolder);
+		}
+
 		if (!file_exists(TL_ROOT . '/' . $strFolder) || !$this->isMounted($strFolder))
 		{
 			$this->log('Folder "'.$strFolder.'" was not mounted or is not a directory', 'DC_Folder move()', TL_ERROR);
@@ -1919,12 +1924,12 @@ window.addEvent(\'domready\', function() {
 		$strFolder = $this->Input->get('pid', true);
 
 		// Check the path
-		if (strpos($strFile, '../') !== false)
+		if (Files::isInsecurePath($strFile))
 		{
 			$this->log('Invalid file name "'.$strFile.'" (hacking attempt)', 'DC_Folder isValid()', TL_ERROR);
 			$this->redirect('contao/main.php?act=error');
 		}
-		elseif (strpos($strFolder, '../') !== false)
+		elseif (Files::isInsecurePath($strFolder))
 		{
 			$this->log('Invalid folder name "'.$strFolder.'" (hacking attempt)', 'DC_Folder isValid()', TL_ERROR);
 			$this->redirect('contao/main.php?act=error');

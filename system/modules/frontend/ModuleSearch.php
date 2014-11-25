@@ -85,9 +85,7 @@ class ModuleSearch extends Module
 			$_GET['per_page'] = $this->Input->post('per_page');
 		}
 
-		// Remove insert tags
 		$strKeywords = trim($this->Input->get('keywords'));
-		$strKeywords = preg_replace('/\{\{[^\}]*\}\}/', '', $strKeywords);
 
 		// Overwrite the default query_type
 		if ($this->Input->get('query_type'))

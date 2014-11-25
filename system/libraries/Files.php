@@ -283,11 +283,62 @@ class Files
 	{
 		foreach (func_get_args() as $strPath)
 		{
-			if (strpos($strPath, '../') !== false)
+			if ($strPath == '') // see #5795
 			{
-				throw new Exception('Invalid file or folder name ' . $strPath);
+				throw new RuntimeException('No file or folder name given');
+			}
+			elseif ($this->isInsecurePath($strPath))
+			{
+				throw new RuntimeException('Invalid file or folder name ' . $strPath);
 			}
 		}
+	}
+
+
+	/**
+	 * Insecure path potentially containing directory traversal
+	 *
+	 * @param string $strPath The file path
+	 *
+	 * @return boolean True if the file path is insecure
+	 */
+	public static function isInsecurePath($strPath)
+	{
+		// Normalize backslashes
+		$strPath = str_replace('\\', '/', $strPath);
+		$strPath = preg_replace('#/+#', '/', $strPath);
+
+		// Begins with ./
+		if (substr($strPath, 0, 2) == './')
+		{
+			return true;
+		}
+
+		// Begins with ../
+		if (substr($strPath, 0, 3) == '../')
+		{
+			return true;
+		}
+
+		// Ends with /.
+		if (substr($strPath, -2) == '/.')
+		{
+			return true;
+		}
+
+		// Ends with /..
+		if (substr($strPath, -3) == '/..')
+		{
+			return true;
+		}
+
+		// Contains /../
+		if (strpos($strPath, '/../') !== false)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }
 

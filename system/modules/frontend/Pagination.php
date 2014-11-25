@@ -210,7 +210,7 @@ class Pagination extends Frontend
 		$this->strUrl = preg_replace('/\?.*$/', '', $this->Environment->request);
 
 		// Prepare URL
-		foreach (preg_split('/&(amp;)?/', $_SERVER['QUERY_STRING'], -1, PREG_SPLIT_NO_EMPTY) as $fragment)
+		foreach (preg_split('/&(amp;)?/', $this->Environment->queryString, -1, PREG_SPLIT_NO_EMPTY) as $fragment)
 		{
 			if (strncasecmp($fragment, 'page', 4) !== 0)
 			{
