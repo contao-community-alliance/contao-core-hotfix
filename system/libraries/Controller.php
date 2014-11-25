@@ -81,7 +81,7 @@ abstract class Controller extends System
 		if (TL_MODE == 'FE')
 		{
 			global $objPage;
-			$strTemplateGroup = $objPage->templateGroup;
+			$strTemplateGroup = str_replace('templates/', '', $objPage->templateGroup);
 
 			if ($strTemplateGroup != '')
 			{
