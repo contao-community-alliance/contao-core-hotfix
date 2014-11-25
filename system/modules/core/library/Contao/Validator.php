@@ -251,4 +251,51 @@ class Validator
 	{
 		return preg_match('/^[a-z]{2}(\-[A-Z]{2})?$/', $varValue);
 	}
+
+
+	/**
+	 * Insecure path potentially containing directory traversal
+	 *
+	 * @param string $varValue The file path
+	 *
+	 * @return boolean True if the file path is insecure
+	 */
+	public static function isInsecurePath($strPath)
+	{
+		// Normalize backslashes
+		$strPath = str_replace('\\', '/', $strPath);
+		$strPath = preg_replace('#/+#', '/', $strPath);
+
+		// Begins with ./
+		if (substr($strPath, 0, 2) == './')
+		{
+			return true;
+		}
+
+		// Begins with ../
+		if (substr($strPath, 0, 3) == '../')
+		{
+			return true;
+		}
+
+		// Ends with /.
+		if (substr($strPath, -2) == '/.')
+		{
+			return true;
+		}
+
+		// Ends with /..
+		if (substr($strPath, -3) == '/..')
+		{
+			return true;
+		}
+
+		// Contains /../
+		if (strpos($strPath, '/../') !== false)
+		{
+			return true;
+		}
+
+		return false;
+	}
 }

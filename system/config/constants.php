@@ -15,7 +15,7 @@
  * Core version
  */
 define('VERSION', '3.1');
-define('BUILD', '5-cca.soa.soa-hardening');
+define('BUILD', '5-cca.soa.soa-hardening.xss2.dt');
 define('LONG_TERM_SUPPORT', false);
 
 
