@@ -155,7 +155,7 @@ abstract class User extends Model
 		$this->loadLanguageFile('default');
 
 		// Do not continue if username or password are missing
-		if (!$this->Input->post('username') || !$this->Input->post('password'))
+		if (!$this->Input->post('username') || !$this->Input->postUnsafeRaw('password'))
 		{
 			return false;
 		}
@@ -171,7 +171,7 @@ abstract class User extends Model
 				foreach ($GLOBALS['TL_HOOKS']['importUser'] as $callback)
 				{
 					$this->import($callback[0], 'objImport', true);
-					$blnLoaded = $this->objImport->$callback[1]($this->Input->post('username'), $this->Input->post('password'), $this->strTable);
+					$blnLoaded = $this->objImport->$callback[1]($this->Input->post('username'), $this->Input->postUnsafeRaw('password'), $this->strTable);
 
 					// Load successfull
 					if ($blnLoaded === true)
@@ -233,15 +233,15 @@ abstract class User extends Model
 		list($strPassword, $strSalt) = explode(':', $this->password);
 
 		// Password is correct but not yet salted
-		if (!strlen($strSalt) && $strPassword == sha1($this->Input->post('password')))
+		if (!strlen($strSalt) && $strPassword == sha1($this->Input->postUnsafeRaw('password')))
 		{
 			$strSalt = substr(md5(uniqid(mt_rand(), true)), 0, 23);
-			$strPassword = sha1($strSalt . $this->Input->post('password'));
+			$strPassword = sha1($strSalt . $this->Input->postUnsafeRaw('password'));
 			$this->password = $strPassword . ':' . $strSalt;
 		}
 
 		// Check the password against the database
-		if (strlen($strSalt) && $strPassword == sha1($strSalt . $this->Input->post('password')))
+		if (strlen($strSalt) && $strPassword == sha1($strSalt . $this->Input->postUnsafeRaw('password')))
 		{
 			$blnAuthenticated = true;
 		}
@@ -252,7 +252,7 @@ abstract class User extends Model
 			foreach ($GLOBALS['TL_HOOKS']['checkCredentials'] as $callback)
 			{
 				$this->import($callback[0], 'objAuth', true);
-				$blnAuthenticated = $this->objAuth->$callback[1]($this->Input->post('username'), $this->Input->post('password'), $this);
+				$blnAuthenticated = $this->objAuth->$callback[1]($this->Input->post('username'), $this->Input->postUnsafeRaw('password'), $this);
 
 				// Authentication successfull
 				if ($blnAuthenticated === true)

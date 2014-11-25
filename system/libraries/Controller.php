@@ -73,11 +73,16 @@ abstract class Controller extends System
 		{
 			global $objPage;
 
-			$strTemplateGroup = str_replace('../', '', $objPage->templateGroup);
+			$strTemplateGroup = $objPage->templateGroup;
 			$strTemplateGroup = preg_replace('@^templates/@', '', $strTemplateGroup);
 
 			if ($strTemplateGroup != '')
 			{
+				if (Files::isInsecurePath($strTemplateGroup))
+				{
+					throw new RuntimeException('Invalid path ' . $strTemplateGroup);
+				}
+
 				$strFile = $strPath . '/' . $strTemplateGroup . '/' . $strTemplate . '.tpl';
 
 				if (file_exists($strFile))
@@ -89,6 +94,11 @@ abstract class Controller extends System
 
 		// Check the templates directory
 		$strFile = $strPath . '/' . $strTemplate . '.tpl';
+
+		if (Files::isInsecurePath($strFile))
+		{
+			throw new RuntimeException('Invalid path ' . $strFile);
+		}
 
 		if (file_exists($strFile))
 		{
@@ -1818,8 +1828,11 @@ abstract class Controller extends System
 						$strFile = $arrChunks[0];
 					}
 
-					// Sanitize path
-					$strFile = str_replace('../', '', $strFile);
+					// Check the path
+					if (Files::isInsecurePath($strFile))
+					{
+						throw new RuntimeException('Invalid path ' . $strFile);
+					}
 
 					// Check maximum image width
 					if ($GLOBALS['TL_CONFIG']['maxImageWidth'] > 0 && $width > $GLOBALS['TL_CONFIG']['maxImageWidth'])
@@ -1882,8 +1895,11 @@ abstract class Controller extends System
 						$strFile = $arrChunks[0];
 					}
 
-					// Sanitize path
-					$strFile = str_replace('../', '', $strFile);
+					// Check the path
+					if (Files::isInsecurePath($strFile))
+					{
+						throw new RuntimeException('Invalid path ' . $strFile);
+					}
 
 					// Include .php and .tpl files
 					if (preg_match('/\.(php|tpl)$/', $strFile) && file_exists(TL_ROOT . '/templates/' . $strFile))
