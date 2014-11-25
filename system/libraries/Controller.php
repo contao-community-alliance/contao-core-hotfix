@@ -80,6 +80,11 @@ abstract class Controller extends System
 			}
 		}
 
+		if (Files::isInsecurePath($strFile))
+		{
+			throw new RuntimeException('Invalid path ' . $strFile);
+		}
+
 		if (!file_exists($strFile))
 		{
 			throw new Exception(sprintf('Could not find template file "%s"', $strTemplate));
@@ -1685,8 +1690,11 @@ abstract class Controller extends System
 						$strFile = $arrChunks[0];
 					}
 
-					// Sanitize path
-					$strFile = str_replace('../', '', $strFile);
+					// Check the path
+					if (Files::isInsecurePath($strFile))
+					{
+						throw new RuntimeException('Invalid path ' . $strFile);
+					}
 
 					// Check maximum image width
 					if ($GLOBALS['TL_CONFIG']['maxImageWidth'] > 0 && $width > $GLOBALS['TL_CONFIG']['maxImageWidth'])
@@ -1732,8 +1740,11 @@ abstract class Controller extends System
 						$strFile = $arrChunks[0];
 					}
 
-					// Sanitize path
-					$strFile = str_replace('../', '', $strFile);
+					// Check the path
+					if (Files::isInsecurePath($strFile))
+					{
+						throw new RuntimeException('Invalid path ' . $strFile);
+					}
 
 					// Include file
 					if (file_exists(TL_ROOT . '/templates/' . $strFile))

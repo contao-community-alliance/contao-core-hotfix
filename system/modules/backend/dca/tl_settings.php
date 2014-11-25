@@ -331,7 +331,11 @@ $GLOBALS['TL_DCA']['tl_settings'] = array
 		(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_settings']['smtpPass'],
 			'inputType'               => 'text',
-			'eval'                    => array('decodeEntities'=>true, 'hideInput'=>true, 'tl_class'=>'w50')
+			'eval'                    => array('decodeEntities'=>true, 'hideInput'=>true, 'tl_class'=>'w50'),
+			'save_callback'           => array
+			(
+				array('tl_settings', 'storeSmtpPass')
+			)
 		),
 		'inactiveModules' => array
 		(
@@ -485,17 +489,37 @@ class tl_settings extends Backend
 
 
 	/**
+	 * Store the unfiltered SMTP password
+	 * @param mixed
+	 * @param \DataContainer
+	 * @return mixed
+	 */
+	public function storeSmtpPass($varValue, DataContainer $dc)
+	{
+		if (isset($_POST[$dc->field]))
+		{
+			return $this->Input->postUnsafeRaw($dc->field);
+		}
+
+		return $varValue;
+	}
+
+
+	/**
 	 * Check the upload path
 	 * @param mixed
 	 * @return array
 	 */
 	public function checkUploadPath($varValue)
 	{
-		$varValue = str_replace(array('../', '/..', '/.', './', '://'), '', $varValue);
-
-		if ($varValue == '.' || $varValue == '..' || $varValue == '')
+		if ($varValue == '.' || Files::isInsecurePath($varValue))
 		{
 			$varValue = 'tl_files';
+		}
+
+		if (preg_match('@^(typolight|plugins|system|templates|)(/|$)@', $varValue))
+		{
+			throw new Exception($GLOBALS['TL_LANG']['ERR']['invalidName']);
 		}
 
 		return $varValue;

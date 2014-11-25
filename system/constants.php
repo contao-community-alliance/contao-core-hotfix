@@ -45,7 +45,7 @@ define('URL_SUFFIX', '.html');
 define('ENCODE_AMPERSANDS', true);
 define('SWITCH_ORDER', true);
 define('VERSION', '2.8');
-define('BUILD', '4-cca.soa.soa-hardening.xss.moo');
+define('BUILD', '4-cca.soa.soa-hardening.xss.moo.xss2.dt');
 define('MOOTOOLS_CORE', '1.3.2');
 define('MOOTOOLS_MORE', '1.3.2.1');
 

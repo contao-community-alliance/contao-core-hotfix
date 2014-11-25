@@ -196,7 +196,7 @@ class ModuleListing extends Module
 		$strUrl = preg_replace('/\?.*$/', '', $this->Environment->request);
 		$blnQuery = false;
 
-		foreach (preg_split('/&(amp;)?/', $_SERVER['QUERY_STRING']) as $fragment)
+		foreach (preg_split('/&(amp;)?/', $this->Environment->queryString) as $fragment)
 		{
 			if ($fragment != '' && strncasecmp($fragment, 'order_by', 8) !== 0 && strncasecmp($fragment, 'sort', 4) !== 0 && strncasecmp($fragment, 'page', 4) !== 0)
 			{
