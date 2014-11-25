@@ -5,6 +5,16 @@ Version 3.3.6 (2014-10-31)
 --------------------------
 
 ### Fixed
+Fixed a potential directory traversal vulnerability.
+
+### Fixed
+Fixed a severe XSS vulnerability. In this context, the insert tag flags
+`base64_encode` and `base64_decode` have been removed.
+
+### Fixed
+Handle nested insert tags in strip_insert_tags().
+
+### Fixed
 Always pass a DC object in the `toggleVisibility` callback (see #7314).
 
 ### Fixed

@@ -15,7 +15,7 @@
  * Core version
  */
 define('VERSION', '3.3');
-define('BUILD', '6');
+define('BUILD', '6-cca.xss2.dt');
 define('LONG_TERM_SUPPORT', false);
 
 
