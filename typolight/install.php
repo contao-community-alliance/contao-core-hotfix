@@ -116,7 +116,7 @@ class InstallTool extends Controller
 			$_SESSION['TL_INSTALL_AUTH'] = '';
 			$_SESSION['TL_INSTALL_EXPIRE'] = 0;
 
-			$password =  sha1($this->Input->post('password', true));
+			$password =  sha1($this->Input->postUnsafeRaw('password'));
 
 			if (strlen($password) && $password != 'da39a3ee5e6b4b0d3255bfef95601890afd80709')
 			{
@@ -162,13 +162,13 @@ class InstallTool extends Controller
 		if ($this->Input->post('FORM_SUBMIT') == 'tl_install')
 		{
 			// Passwords do not match
-			if ($this->Input->post('password') != $this->Input->post('confirm_password'))
+			if ($this->Input->postUnsafeRaw('password') != $this->Input->postUnsafeRaw('confirm_password'))
 			{
 				$this->Template->passwordError = 'The passwords did not match!';
 			}
 
 			// Password too short
-			elseif (utf8_strlen($this->Input->post('password')) < 8)
+			elseif (utf8_strlen($this->Input->postUnsafeRaw('password')) < 8)
 			{
 				$this->Template->passwordError = 'A password has to be at least 8 characters long!';
 			}
@@ -176,7 +176,7 @@ class InstallTool extends Controller
 			// Save password
 			else
 			{
-				$this->Config->update("\$GLOBALS['TL_CONFIG']['installPassword']", sha1($this->Input->post('password', true)));
+				$this->Config->update("\$GLOBALS['TL_CONFIG']['installPassword']", sha1($this->Input->postUnsafeRaw('password')));
 				$this->reload();
 			}
 		}

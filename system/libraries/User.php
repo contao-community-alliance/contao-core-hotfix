@@ -147,7 +147,7 @@ abstract class User extends Model
 		$this->loadLanguageFile('default');
 
 		// Do not continue if username or password are missing
-		if (!$this->Input->post('username') || !$this->Input->post('password'))
+		if (!$this->Input->post('username') || !$this->Input->postUnsafeRaw('password'))
 		{
 			return false;
 		}
@@ -251,7 +251,7 @@ abstract class User extends Model
 		$blnAuthenticated = false;
 
 		// Check the password against the database
-		if ($this->password == sha1($this->Input->post('password')))
+		if ($this->password == sha1($this->Input->postUnsafeRaw('password')))
 		{
 			$blnAuthenticated = true;
 		}
@@ -262,7 +262,7 @@ abstract class User extends Model
 			foreach ($GLOBALS['TL_HOOKS']['checkCredentials'] as $callback)
 			{
 				$this->import($callback[0], 'objAuth');
-				$blnAuthenticated = $this->objAuth->$callback[1]($this->Input->post('username'), $this->Input->post('password'));
+				$blnAuthenticated = $this->objAuth->$callback[1]($this->Input->post('username'), $this->Input->postUnsafeRaw('password'));
 
 				// Authentication successfull
 				if ($blnAuthenticated === true)

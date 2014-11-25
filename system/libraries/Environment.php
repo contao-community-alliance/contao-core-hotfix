@@ -206,22 +206,38 @@ class Environment
 
 
 	/**
-	 * Return the request URI [path]?[query] (e.g. /typolight/index.php?id=2)
+	 * Return the query string (e.g. id=2)
+	 *
+	 * @return string The query string
+	 */
+	protected function queryString()
+	{
+		if (!isset($_SERVER['QUERY_STRING']))
+		{
+			return '';
+		}
+
+		return $this->encodeRequestString($_SERVER['QUERY_STRING']);
+	}
+
+
+	/**
+	 * Return the request URI [path]?[query] (e.g. /contao/index.php?id=2)
+	 *
 	 * @return string
 	 */
 	protected function requestUri()
 	{
-		if (!array_key_exists('requestUri', $this->arrCache))
+		if (!empty($_SERVER['REQUEST_URI']))
 		{
-			$this->arrCache['requestUri'] = $_SERVER['REQUEST_URI'];
-
-			if (!strlen($_SERVER['REQUEST_URI']))
-			{
-				$this->arrCache['requestUri'] = '/' . preg_replace('/^\//i', '', $this->scriptName()) . (strlen($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
-			}
+			$strRequest = $_SERVER['REQUEST_URI'];
+		}
+		else
+		{
+			$strRequest = '/' . preg_replace('/^\//', '', $this->scriptName) . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
 		}
 
-		return $this->arrCache['requestUri'];
+		return $this->encodeRequestString($strRequest);
 	}
 
 
@@ -378,20 +394,7 @@ class Environment
 	 */
 	protected function request()
 	{
-		if (!array_key_exists('request', $this->arrCache))
-		{
-			$strRequest = preg_replace('/^' . preg_quote(TL_PATH, '/') . '\/?/i', '', $this->requestUri());
-
-			if (!strlen($strRequest))
-			{
-				$strRequest = $this->script();
-			}
-
-			// Do not urlencode() here (thanks to Russ McRee)!
-			$this->arrCache['request'] = $strRequest;
-		}
-
-		return $this->arrCache['request'];
+		return preg_replace('/^' . preg_quote(TL_PATH, '/') . '\/?/', '', $this->requestUri);
 	}
 
 
@@ -423,6 +426,19 @@ class Environment
 		}
 
 		return $this->arrCache['host'];
+	}
+
+
+	/**
+	 * Encode a request string preserving certain reserved characters
+	 *
+	 * @param string $strRequest The request string
+	 *
+	 * @return string The encoded request string
+	 */
+	protected function encodeRequestString($strRequest)
+	{
+		return preg_replace_callback('/[^A-Za-z0-9\-_.~&=+,\/?%\[\]]+/', function($matches) { return rawurlencode($matches[0]); }, $strRequest);
 	}
 }
 

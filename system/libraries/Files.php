@@ -94,6 +94,7 @@ class Files
 	 */
 	public function mkdir($strDirectory)
 	{
+		$this->validate($strDirectory);
 		return @mkdir(TL_ROOT . '/' . $strDirectory);
 	}
 
@@ -105,6 +106,7 @@ class Files
 	 */
 	public function rmdir($strDirectory)
 	{
+		$this->validate($strDirectory);
 		return @rmdir(TL_ROOT. '/' . $strDirectory);
 	}
 
@@ -117,6 +119,7 @@ class Files
 	 */
 	public function fopen($strFile, $strMode)
 	{
+		$this->validate($strFile);
 		return @fopen(TL_ROOT . '/' . $strFile, $strMode);
 	}
 
@@ -152,6 +155,8 @@ class Files
 	 */
 	public function rename($strOldName, $strNewName)
 	{
+		$this->validate($strOldName, $strNewName);
+
 		// Windows fix: delete target file
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && file_exists(TL_ROOT . '/' . $strNewName))
 		{
@@ -177,6 +182,7 @@ class Files
 	 */
 	public function copy($strSource, $strDestination)
 	{
+		$this->validate($strSource, $strDestination);
 		return @copy(TL_ROOT . '/' . $strSource, TL_ROOT . '/' . $strDestination);
 	}
 
@@ -188,6 +194,7 @@ class Files
 	 */
 	public function delete($strFile)
 	{
+		$this->validate($strFile);
 		return @unlink(TL_ROOT . '/' . $strFile);
 	}
 
@@ -200,6 +207,7 @@ class Files
 	 */
 	public function chmod($strFile, $varMode)
 	{
+		$this->validate($strFile);
 		return @chmod(TL_ROOT . '/' . $strFile, $varMode);
 	}
 
@@ -211,6 +219,7 @@ class Files
 	 */
 	public function is_writeable($strFile)
 	{
+		$this->validate($strFile);
 		return @is_writeable(TL_ROOT . '/' . $strFile);
 	}
 
@@ -223,7 +232,75 @@ class Files
 	 */
 	public function move_uploaded_file($strSource, $strDestination)
 	{
+		$this->validate($strSource, $strDestination);
 		return @move_uploaded_file($strSource, TL_ROOT . '/' . $strDestination);
+	}
+
+
+	/**
+	 * Validate the path
+	 * @throws Exception
+	 */
+	protected function validate()
+	{
+		foreach (func_get_args() as $strPath)
+		{
+			if ($strPath == '') // see #5795
+			{
+				throw new RuntimeException('No file or folder name given');
+			}
+			elseif ($this->isInsecurePath($strPath))
+			{
+				throw new RuntimeException('Invalid file or folder name ' . $strPath);
+			}
+		}
+	}
+
+
+	/**
+	 * Insecure path potentially containing directory traversal
+	 *
+	 * @param string $strPath The file path
+	 *
+	 * @return boolean True if the file path is insecure
+	 */
+	public static function isInsecurePath($strPath)
+	{
+		// Normalize backslashes
+		$strPath = str_replace('\\', '/', $strPath);
+		$strPath = preg_replace('#/+#', '/', $strPath);
+
+		// Begins with ./
+		if (substr($strPath, 0, 2) == './')
+		{
+			return true;
+		}
+
+		// Begins with ../
+		if (substr($strPath, 0, 3) == '../')
+		{
+			return true;
+		}
+
+		// Ends with /.
+		if (substr($strPath, -2) == '/.')
+		{
+			return true;
+		}
+
+		// Ends with /..
+		if (substr($strPath, -3) == '/..')
+		{
+			return true;
+		}
+
+		// Contains /../
+		if (strpos($strPath, '/../') !== false)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }
 
